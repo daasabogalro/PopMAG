@@ -1,7 +1,7 @@
 process CHECKM2_DATABASEDOWNLOAD {
     label 'process_single'
 
-    conda "${moduleDir}/environment.yml"
+    conda "bioconda::checkm2=1.0.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/checkm2:1.0.2--pyh7cba7a3_0':
         'biocontainers/checkm2:1.0.2--pyh7cba7a3_0' }"

@@ -12,7 +12,8 @@ process DREP {
 
     output:
     tuple val(meta), path("dRep_${meta.id}"), emit: drep_output
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("${meta.id}_concatenated.fa"), emit: concatenated_genome
+    path "versions.yml", emit: versions
 
     script:
     def args = task.ext.args ?: ''
@@ -28,6 +29,9 @@ process DREP {
         mkdir -p ${prefix}/dereplicated_genomes
         cp ${fasta}/* ${prefix}/dereplicated_genomes/
     fi
+
+    # Concatenate the dereplicated genomes
+    cat ${prefix}/dereplicated_genomes/*.fa > ${meta.id}_concatenated.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
