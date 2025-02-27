@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 include { CHECKM2_DATABASEDOWNLOAD } from './modules/local/checkm2_database'
 include { CHECKM2_PREDICT } from './modules/nf-core/checkm2/predict/main'
 include { TRANSFORM_CHECKM2_REPORT } from './modules/local/transform_checkm2_report'
+include { DREP } from './modules/local/drep'
 
 // Define the main workflow
 workflow {
@@ -39,5 +40,11 @@ workflow {
     .first()
 
     TRANSFORM_CHECKM2_REPORT(ch_checkm2_report, extension_ch)
+    ch_transformed_report = TRANSFORM_CHECKM2_REPORT.out.transformed_report
+
+    drep_input = mag_ch.groupTuple()
+        .join(TRANSFORM_CHECKM2_REPORT.out.transformed_report)
+
+    DREP(drep_input)
 }
 
