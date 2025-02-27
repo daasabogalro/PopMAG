@@ -7,6 +7,7 @@ include { CHECKM2_DATABASEDOWNLOAD } from './modules/local/checkm2_database'
 include { CHECKM2_PREDICT } from './modules/nf-core/checkm2/predict/main'
 include { TRANSFORM_CHECKM2_REPORT } from './modules/local/transform_checkm2_report'
 include { DREP } from './modules/local/drep'
+include { FILTER_BINS } from './modules/local/filter_bins'
 
 // Define the main workflow
 workflow {
@@ -18,7 +19,7 @@ workflow {
             tuple([id: row.sample_id], file(row.mag_path))
     }
     
-    //CheckM2
+    //Download CheckM2 database
     if (!params.skip_checkm2) {
         if (params.checkm2_db) {
             ch_checkm2_db = [[:], file(params.checkm2_db, checkIfExists: true)]
@@ -28,11 +29,12 @@ workflow {
             ch_checkm2_db = CHECKM2_DATABASEDOWNLOAD.out.database
             }
     }
-
+    
+    // Calculate CheckM2 metrics for all MAGs
     CHECKM2_PREDICT(mag_ch.groupTuple(), ch_checkm2_db)
     ch_checkm2_report = CHECKM2_PREDICT.out.checkm2_tsv
 
-    //Channel to get the extensions of each MAG
+    //Channel to get the extensions of the MAGs
     extension_ch = Channel
     .fromPath(params.mag_paths)
     .splitCsv(header:true, sep:'\t')
@@ -42,9 +44,24 @@ workflow {
     TRANSFORM_CHECKM2_REPORT(ch_checkm2_report, extension_ch)
     ch_transformed_report = TRANSFORM_CHECKM2_REPORT.out.transformed_report
 
-    drep_input = mag_ch.groupTuple()
+    //Prepare input for filtering
+    filter_input = mag_ch.groupTuple()
         .join(TRANSFORM_CHECKM2_REPORT.out.transformed_report)
 
+    FILTER_BINS(
+        filter_input,
+        params.min_completeness ?: 90,
+        params.max_contamination ?: 5
+    )
+    ch_filtered_bins = FILTER_BINS.out.filtered_bins
+
+    ch_filtered_bins.view()
+
+    //Prepare input for dRep
+    drep_input = ch_filtered_bins
+        .join(ch_transformed_report)
+
     DREP(drep_input)
+    
 }
 

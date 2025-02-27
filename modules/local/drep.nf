@@ -8,7 +8,7 @@ process DREP {
     'biocontainers/drep:3.5.0--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(fasta, stageAs: "input_bins/*"), path(checkm2_report)
+    tuple val(meta), path(fasta), path(checkm2_report)
 
     output:
     tuple val(meta), path("dRep_${meta.id}"), emit: drep_output
@@ -19,7 +19,7 @@ process DREP {
     prefix = task.ext.prefix ?: "dRep_${meta.id}"
     """
     dRep dereplicate ${prefix} \
-        -g ${fasta} \
+        -g ${fasta}/* \
         --genomeInfo ${checkm2_report} \
         -p ${task.cpus} \
 	${args}
