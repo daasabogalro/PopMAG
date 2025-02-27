@@ -12,7 +12,7 @@ process DREP {
 
     output:
     tuple val(meta), path("dRep_${meta.id}"), emit: drep_output
-    tuple val(meta), path("${meta.id}_concatenated.fa"), emit: concatenated_genome
+    tuple val(meta), path("${meta.id}_concatenated.fa"), emit: concatenated_mags
     path "versions.yml", emit: versions
 
     script:

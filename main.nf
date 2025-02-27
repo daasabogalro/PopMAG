@@ -8,6 +8,7 @@ include { CHECKM2_PREDICT } from './modules/nf-core/checkm2/predict/main'
 include { TRANSFORM_CHECKM2_REPORT } from './modules/local/transform_checkm2_report'
 include { DREP } from './modules/local/drep'
 include { FILTER_BINS } from './modules/local/filter_bins'
+include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
 
 // Define the main workflow
 workflow {
@@ -58,6 +59,15 @@ workflow {
         .join(ch_transformed_report)
 
     DREP(drep_input)
-    
+    ch_concatenated_mags = DREP.out.concatenated_mags
+
+    //InStrain setup
+
+    ch_instrain_genes = CHECKM2_PREDICT.out.checkm2_output
+    ch_instrain_genes.view()
+
+    BOWTIE2_INSTRAIN_BUILD(ch_concatenated_mags)
+
+//    INSTRAIN()
 }
 
