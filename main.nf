@@ -48,11 +48,7 @@ workflow {
     filter_input = mag_ch.groupTuple()
         .join(TRANSFORM_CHECKM2_REPORT.out.transformed_report)
 
-    FILTER_BINS(
-        filter_input,
-        params.min_completeness ?: 90,
-        params.max_contamination ?: 5
-    )
+    FILTER_BINS(filter_input)
     ch_filtered_bins = FILTER_BINS.out.filtered_bins
 
     ch_filtered_bins.view()
