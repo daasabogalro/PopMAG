@@ -18,11 +18,16 @@ process DREP {
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "dRep_${meta.id}"
     """
-    dRep dereplicate ${prefix} \
-        -g ${fasta}/* \
-        --genomeInfo ${checkm2_report} \
-        -p ${task.cpus} \
-	${args}
+    if [ \$(ls -1 ${fasta} | wc -l) -gt 1 ]; then
+        dRep dereplicate ${prefix} \
+            -g ${fasta}/* \
+            --genomeInfo ${checkm2_report} \
+            -p ${task.cpus} \
+            ${args}
+    else
+        mkdir -p ${prefix}/dereplicated_genomes
+        cp ${fasta}/* ${prefix}/dereplicated_genomes/
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
