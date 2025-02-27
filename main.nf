@@ -72,18 +72,11 @@ workflow {
 	.map { row -> tuple([id: row.sample_id], [file(row.forward), file(row.reverse)]) } 
     .unique()
 
-ch_bowtie2_instrain_index.view{ "bowtie2 index: $it" }
-
 // Cartesian product of MAGs+index with reads
 ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     .map { mag_meta, mag, index, reads_meta, reads -> 
         tuple(mag_meta, mag, index, reads_meta, reads)
     }
-
-// Debug view statements
-ch_bowtie2_instrain_index.view{ it -> "MAGs with index: $it" }
-reads_ch.view{ it -> "Reads: $it" }
-ch_bowtie2_align_input.view{ it -> "Bowtie2 input: $it" }
 
     BOWTIE2_INSTRAIN_ALIGN(ch_bowtie2_align_input)
 
