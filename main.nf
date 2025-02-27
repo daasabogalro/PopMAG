@@ -10,6 +10,7 @@ include { DREP } from './modules/local/drep'
 include { FILTER_BINS } from './modules/local/filter_bins'
 include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
 include { BOWTIE2_INSTRAIN_ALIGN } from './modules/local/bowtie2_instrain_align'
+include { EXTRACT_CONTIG_NAMES } from './modules/local/mag_to_contig'
 
 // Define the main workflow
 workflow {
@@ -79,7 +80,16 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     }
 
     BOWTIE2_INSTRAIN_ALIGN(ch_bowtie2_align_input)
+    ch_bowtie2_mapping = BOWTIE2_INSTRAIN_ALIGN.out.mappings
 
+ch_complete_mags = Channel
+    .fromPath(params.mag_paths)
+    .splitCsv(header:true, sep:'\t')
+    .map { row -> 
+        def mag_id = file(row.mag_path).name.replaceFirst(/\.fa$/, '')
+        tuple(row.sample_id, mag_id, file(row.mag_path)) 
+    }
+    EXTRACT_CONTIG_NAMES(ch_complete_mags)
 //    INSTRAIN()
 }
 
