@@ -9,6 +9,7 @@ include { TRANSFORM_CHECKM2_REPORT } from './modules/local/transform_checkm2_rep
 include { DREP } from './modules/local/drep'
 include { FILTER_BINS } from './modules/local/filter_bins'
 include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
+include { BOWTIE2_INSTRAIN_ALIGN } from './modules/local/bowtie2_instrain_align'
 
 // Define the main workflow
 workflow {
@@ -33,6 +34,7 @@ workflow {
     
     // Calculate CheckM2 metrics for all MAGs
     CHECKM2_PREDICT(mag_ch.groupTuple(), ch_checkm2_db)
+    ch_checkm2_output = CHECKM2_PREDICT.out.checkm2_output
     ch_checkm2_report = CHECKM2_PREDICT.out.checkm2_tsv
 
     //Channel to get the extensions of the MAGs
@@ -52,8 +54,6 @@ workflow {
     FILTER_BINS(filter_input)
     ch_filtered_bins = FILTER_BINS.out.filtered_bins
 
-    ch_filtered_bins.view()
-
     //Prepare input for dRep
     drep_input = ch_filtered_bins
         .join(ch_transformed_report)
@@ -63,10 +63,29 @@ workflow {
 
     //InStrain setup
 
-    ch_instrain_genes = CHECKM2_PREDICT.out.checkm2_output
-    ch_instrain_genes.view()
-
     BOWTIE2_INSTRAIN_BUILD(ch_concatenated_mags)
+    ch_bowtie2_instrain_index = BOWTIE2_INSTRAIN_BUILD.out.index
+
+    reads_ch = Channel
+	.fromPath(params.reads_paths)
+	.splitCsv(header:true, sep:'\t')
+	.map { row -> tuple([id: row.sample_id], [file(row.forward), file(row.reverse)]) } 
+    .unique()
+
+ch_bowtie2_instrain_index.view{ "bowtie2 index: $it" }
+
+// Cartesian product of MAGs+index with reads
+ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
+    .map { mag_meta, mag, index, reads_meta, reads -> 
+        tuple(mag_meta, mag, index, reads_meta, reads)
+    }
+
+// Debug view statements
+ch_bowtie2_instrain_index.view{ it -> "MAGs with index: $it" }
+reads_ch.view{ it -> "Reads: $it" }
+ch_bowtie2_align_input.view{ it -> "Bowtie2 input: $it" }
+
+    BOWTIE2_INSTRAIN_ALIGN(ch_bowtie2_align_input)
 
 //    INSTRAIN()
 }
