@@ -1,0 +1,15 @@
+.nextflow*
+work/
+data/
+results/
+.DS_Store
+testing/
+testing*
+test_data/
+*.pyc
+null/
+*paths.tsv
+metadata*
+*.swp
+.nf-core.yml
+.vscode
