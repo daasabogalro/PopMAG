@@ -6,8 +6,6 @@ process CHECKM2_DATABASEDOWNLOAD {
         'https://depot.galaxyproject.org/singularity/checkm2:1.0.2--pyh7cba7a3_0':
         'biocontainers/checkm2:1.0.2--pyh7cba7a3_0' }"
 
-    input:
-
     output:
     tuple val(meta), path("checkm2_database.dmnd"), emit: database
     path("versions.yml"), emit: versions
@@ -21,7 +19,7 @@ process CHECKM2_DATABASEDOWNLOAD {
     meta            = [id: 'checkm2_db']    
 
     """
-    checkm2 database --download --path .
+    checkm2 database --download --path . $args
 
     db_path=\$(find -name *.dmnd)
     mv \$db_path checkm2_database.dmnd
