@@ -37,7 +37,6 @@ workflow {
     
     // Calculate CheckM2 metrics for all MAGs
     CHECKM2_PREDICT(mag_ch.groupTuple(), ch_checkm2_db)
-    ch_checkm2_output = CHECKM2_PREDICT.out.checkm2_output
     ch_checkm2_report = CHECKM2_PREDICT.out.checkm2_tsv
 
     //Channel to get the extensions of the MAGs
@@ -104,18 +103,15 @@ ch_complete_mags = Channel
         tuple([id: mag_id, sample: row.sample_id], file(row.mag_path)) 
     }
 
-    // TODO: We need to group the annotations by sample in order to concatenate them to be used as input in InStrain. 
     PROKKA(ch_prokka_mags, [], [])
+    ch_genes = PROKKA.out.fna
 
     // Combine the outputs from BOWTIE2_INSTRAIN_ALIGN and DREP
-    ch_instrain_input = BOWTIE2_INSTRAIN_ALIGN.out.mappings
+    ch_instrain_input = ch_bowtie2_mapping
     .combine(DREP.out.concatenated_mags, by: 0)  // Combine by meta
     .map { meta, concatenated_mags_align, bam, bai, concatenated_mags_drep ->
         [meta, concatenated_mags_drep, bam, bai]
     }
-
-    ch_genes = CHECKM2_PREDICT.out.checkm2_output
-        .map { meta, output -> output.find { it.name.endsWith('.genes.faa') } }
 
     INSTRAIN_PROFILE(ch_instrain_input, ch_genes, ch_contig_names)
 }
