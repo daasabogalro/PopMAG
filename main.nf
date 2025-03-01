@@ -11,6 +11,8 @@ include { FILTER_BINS } from './modules/local/filter_bins'
 include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
 include { BOWTIE2_INSTRAIN_ALIGN } from './modules/local/bowtie2_instrain_align'
 include { EXTRACT_CONTIG_NAMES } from './modules/local/mag_to_contig'
+include { PROKKA } from './modules/nf-core/prokka/main'
+include { INSTRAIN_PROFILE } from './modules/local/instrain_profile'
 
 // Define the main workflow
 workflow {
@@ -89,7 +91,32 @@ ch_complete_mags = Channel
         def mag_id = file(row.mag_path).name.replaceFirst(/\.fa$/, '')
         tuple(row.sample_id, mag_id, file(row.mag_path)) 
     }
+
     EXTRACT_CONTIG_NAMES(ch_complete_mags)
-//    INSTRAIN()
+    ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin
+
+    // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
+    ch_prokka_mags = Channel
+    .fromPath(params.mag_paths)
+    .splitCsv(header:true, sep:'\t')
+    .map { row -> 
+        def mag_id = file(row.mag_path).name.replaceFirst(/\.fa$/, '')
+        tuple([id: mag_id, sample: row.sample_id], file(row.mag_path)) 
+    }
+
+    // TODO: We need to group the annotations by sample in order to concatenate them to be used as input in InStrain. 
+    PROKKA(ch_prokka_mags, [], [])
+
+    // Combine the outputs from BOWTIE2_INSTRAIN_ALIGN and DREP
+    ch_instrain_input = BOWTIE2_INSTRAIN_ALIGN.out.mappings
+    .combine(DREP.out.concatenated_mags, by: 0)  // Combine by meta
+    .map { meta, concatenated_mags_align, bam, bai, concatenated_mags_drep ->
+        [meta, concatenated_mags_drep, bam, bai]
+    }
+
+    ch_genes = CHECKM2_PREDICT.out.checkm2_output
+        .map { meta, output -> output.find { it.name.endsWith('.genes.faa') } }
+
+    INSTRAIN_PROFILE(ch_instrain_input, ch_genes, ch_contig_names)
 }
 
