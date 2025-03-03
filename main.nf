@@ -92,7 +92,7 @@ ch_complete_mags = Channel
     }
 
     EXTRACT_CONTIG_NAMES(ch_complete_mags)
-    ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin
+    ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin_combined
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
     ch_prokka_mags = Channel
@@ -107,12 +107,16 @@ ch_complete_mags = Channel
     ch_genes = PROKKA.out.fna
 
     // Combine the outputs from BOWTIE2_INSTRAIN_ALIGN and DREP
-    ch_instrain_input = ch_bowtie2_mapping
-    .combine(DREP.out.concatenated_mags, by: 0)  // Combine by meta
-    .map { meta, concatenated_mags_align, bam, bai, concatenated_mags_drep ->
-        [meta, concatenated_mags_drep, bam, bai]
-    }
+    //ch_instrain_input = ch_bowtie2_mapping
+    //.combine(ch_concatenated_mags, by: 0)  // Combine by meta
+    //.map { meta, concatenated_mags, bam, bai, reads_meta ->
+    //    [meta, concatenated_mags, bam, bai, reads_meta]
+    //}
 
-    INSTRAIN_PROFILE(ch_instrain_input, ch_genes, ch_contig_names)
+    INSTRAIN_PROFILE(ch_bowtie2_mapping, ch_genes, ch_contig_names)
+    //ch_instrain_input.view()
+    ch_genes.view()
+    //ch_bowtie2_mapping.view()
+    //ch_contig_names.view()
 }
 
