@@ -3,42 +3,37 @@
 from Bio import SeqIO
 import argparse
 from pathlib import Path
+import sys
 
-def process_mag_file(input_file, individual_output_file, combined_output_file):
+def process_mag_files(sample_id, mag_files):
     """
-    Process a single MAG FASTA file and append to the output file
+    Process multiple MAG FASTA files and write to a combined output file
     with MAG_name and Contig_name for each contig.
 
     Args:
-        input_file (str): Path to the input MAG FASTA file
-        individual_output_file (str): Path to individual output file
-        combined_output_file (str): Path to combined output file
+        sample_id (str): Sample ID
+        mag_files (list): List of paths to the input MAG FASTA files
     """
-    mag_name = Path(input_file).stem
+    output_file = f"{sample_id}_combined_contigs.txt"
     
-    with open(individual_output_file, 'w') as ind_f, open(combined_output_file, 'a') as comb_f:
-        try:
-            for record in SeqIO.parse(input_file, "fasta"):
-                line = f"{record.id}\t{mag_name}\n"
-                ind_f.write(line)
-                comb_f.write(line)
-        except Exception as e:
-            print(f"Error processing file {input_file}: {str(e)}")
+    with open(output_file, 'w') as out_f:
+        for mag_file in mag_files:
+            mag_name = Path(mag_file).stem
+            try:
+                for record in SeqIO.parse(mag_file, "fasta"):
+                    line = f"{record.id}\t{mag_name}\n"
+                    out_f.write(line)
+            except Exception as e:
+                print(f"Error processing file {mag_file}: {str(e)}", file=sys.stderr)
 
 def main():
-    parser = argparse.ArgumentParser(description='Process MAG FASTA file to extract MAG_name and Contig_name')
-    parser.add_argument('input_file', help='MAG FASTA file')
-    parser.add_argument('individual_output_file', help='Individual output file path')
-    parser.add_argument('combined_output_file', help='Combined output file path')
+    parser = argparse.ArgumentParser(description='Process multiple MAG FASTA files to extract MAG_name and Contig_name')
+    parser.add_argument('sample_id', help='Sample ID')
+    parser.add_argument('mag_files', nargs='+', help='MAG FASTA files')
     
     args = parser.parse_args()
     
-#    # If the output file doesn't exist, create it with a header
-#    if not os.path.exists(args.output_file):
-#        with open(args.output_file, 'w') as out_f:
-#            out_f.write()
-    
-    process_mag_file(args.input_file, args.individual_output_file, args.combined_output_file)
+    process_mag_files(args.sample_id, args.mag_files)
 
 if __name__ == "__main__":
     main()

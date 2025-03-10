@@ -91,8 +91,13 @@ ch_complete_mags = Channel
         tuple(row.sample_id, mag_id, file(row.mag_path)) 
     }
 
-    EXTRACT_CONTIG_NAMES(ch_complete_mags)
+    ch_complete_mags.groupTuple().view()
+
+    EXTRACT_CONTIG_NAMES(ch_complete_mags.groupTuple())
     ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin_combined
+    .map { meta, contigs ->
+        tuple([id: meta], file(contigs))
+    }
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
     ch_prokka_mags = Channel
@@ -104,19 +109,13 @@ ch_complete_mags = Channel
     }
 
     PROKKA(ch_prokka_mags, [], [])
-    ch_genes = PROKKA.out.fna
+    ch_prokka_fna = PROKKA.out.fna.map { meta, fna_files -> 
+        [[id: meta.sample], fna_files]
+    }
+    .groupTuple(by: 0)
 
-    // Combine the outputs from BOWTIE2_INSTRAIN_ALIGN and DREP
-    //ch_instrain_input = ch_bowtie2_mapping
-    //.combine(ch_concatenated_mags, by: 0)  // Combine by meta
-    //.map { meta, concatenated_mags, bam, bai, reads_meta ->
-    //    [meta, concatenated_mags, bam, bai, reads_meta]
-    //}
+    ch_instrain_input = ch_bowtie2_mapping.combine(ch_prokka_fna, by: 0).combine(ch_contig_names, by: 0)
 
-    INSTRAIN_PROFILE(ch_bowtie2_mapping, ch_genes, ch_contig_names)
-    //ch_instrain_input.view()
-    ch_genes.view()
-    //ch_bowtie2_mapping.view()
-    //ch_contig_names.view()
+    //TODO: Check if every input file for InStrain is being produced correctly and, if so, why it's not running. 
+    //INSTRAIN_PROFILE(ch_instrain_input)
 }
-
