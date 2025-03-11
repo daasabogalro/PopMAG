@@ -99,7 +99,7 @@ ch_complete_mags = Channel
     }
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
-    ch_prokka_mags = Channel
+    ch_prodigal_mags = Channel
     .fromPath(params.mag_paths)
     .splitCsv(header:true, sep:'\t')
     .map { row -> 
@@ -107,17 +107,18 @@ ch_complete_mags = Channel
         tuple([id: mag_id, sample: row.sample_id], file(row.mag_path)) 
     }
 
-//    PROKKA(ch_prokka_mags, [], [])
-//    ch_prokka_fna = PROKKA.out.fna.map { meta, fna_files -> 
-//        [[id: meta.sample], fna_files]
-//    }
-//    .groupTuple(by: 0)
-
-    PRODIGAL(ch_prokka_mags,'gff')
+    PRODIGAL(ch_prodigal_mags,'gff')
     ch_prokka_fna = PRODIGAL.out.nucleotide_fasta
 
-    ch_instrain_input = ch_bowtie2_mapping.combine(ch_prokka_fna, by: 0).combine(ch_contig_names, by: 0)
+    ch_instrain_input = ch_bowtie2_mapping
+    .combine(ch_prokka_fna
+        .map { metadata, path ->
+        tuple([id: metadata.sample], path)
+        }
+        .groupTuple(
+        by: [0],
+        ),by: 0)
+    .combine(ch_contig_names, by: 0)
 
-    //TODO: Check if every input file for InStrain is being produced correctly and, if so, why it's not running. 
-    //INSTRAIN_PROFILE(ch_instrain_input)
+    INSTRAIN_PROFILE(ch_instrain_input)
 }
