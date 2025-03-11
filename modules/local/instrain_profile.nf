@@ -9,8 +9,6 @@ process INSTRAIN_PROFILE {
 
     input: 
     tuple val(meta), path(concatenated_mags), path(bam), path(bai), val(reads_meta), path(genes), path(scaffolds2bin)
-    //tuple val(meta2), path(genes)
-    //tuple val(meta3), path(scaffolds2bin)
     
     output:
     tuple val(meta), val(reads_meta), path("${reads_meta.id}_to_${meta.id}_reps.IS"), emit: instrain_output
