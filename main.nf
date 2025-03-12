@@ -63,6 +63,8 @@ workflow {
 
     DREP(drep_input)
     ch_concatenated_mags = DREP.out.concatenated_mags
+    ch_dereplicated_genomes = DREP.out.dereplicated_genomes
+    // DREP.out.dereplicated_genomes.view()
 
     //InStrain setup
 
@@ -75,7 +77,7 @@ workflow {
 	.map { row -> tuple([id: row.sample_id], [file(row.forward), file(row.reverse)]) } 
     .unique()
 
-// Cartesian product of MAGs+index with reads
+    // Cartesian product of MAGs+index with reads
 ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     .map { mag_meta, mag, index, reads_meta, reads -> 
         tuple(mag_meta, mag, index, reads_meta, reads)
@@ -92,11 +94,8 @@ ch_complete_mags = Channel
         tuple(row.sample_id, mag_id, file(row.mag_path)) 
     }
 
-    EXTRACT_CONTIG_NAMES(ch_complete_mags.groupTuple())
+    EXTRACT_CONTIG_NAMES(ch_dereplicated_genomes)
     ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin_combined
-    .map { meta, contigs ->
-        tuple([id: meta], file(contigs))
-    }
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
     ch_prodigal_mags = Channel

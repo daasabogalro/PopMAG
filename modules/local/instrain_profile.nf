@@ -26,12 +26,12 @@ process INSTRAIN_PROFILE {
         -o ${reads_meta.id}_to_${meta.id}_reps.IS \
         -p $task.cpus \
         -s $scaffolds2bin \
-        #-g ${meta.id}_concatenated.fna \
+        -g ${meta.id}_concatenated.fna \
         $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        instrain: \$(inStrain -v | head -2 | sed 's/inStrain //g')
+        instrain: \$(inStrain -h | head -2 | sed 's/inStrain //g')
     END_VERSIONS
     """
 }
