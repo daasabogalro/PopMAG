@@ -14,6 +14,7 @@ include { EXTRACT_CONTIG_NAMES } from './modules/local/mag_to_contig'
 include { PROKKA } from './modules/nf-core/prokka/main'
 include { PRODIGAL } from './modules/nf-core/prodigal/main'
 include { INSTRAIN_PROFILE } from './modules/local/instrain_profile'
+include { INSTRAIN_COMPARE } from './modules/local/instrain_compare'
 
 // Define the main workflow
 workflow {
@@ -86,14 +87,6 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     BOWTIE2_INSTRAIN_ALIGN(ch_bowtie2_align_input)
     ch_bowtie2_mapping = BOWTIE2_INSTRAIN_ALIGN.out.mappings
 
-ch_complete_mags = Channel
-    .fromPath(params.mag_paths)
-    .splitCsv(header:true, sep:'\t')
-    .map { row -> 
-        def mag_id = file(row.mag_path).name.replaceFirst(/\.fa$/, '')
-        tuple(row.sample_id, mag_id, file(row.mag_path)) 
-    }
-
     EXTRACT_CONTIG_NAMES(ch_dereplicated_genomes)
     ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin_combined
 
@@ -107,10 +100,10 @@ ch_complete_mags = Channel
     }
 
     PRODIGAL(ch_prodigal_mags,'gff')
-    ch_prokka_fna = PRODIGAL.out.nucleotide_fasta
+    ch_prodigal_fna = PRODIGAL.out.nucleotide_fasta
 
     ch_instrain_input = ch_bowtie2_mapping
-    .combine(ch_prokka_fna
+    .combine(ch_prodigal_fna
         .map { metadata, path ->
         tuple([id: metadata.sample], path)
         }
@@ -120,4 +113,7 @@ ch_complete_mags = Channel
     .combine(ch_contig_names, by: 0)
 
     INSTRAIN_PROFILE(ch_instrain_input)
+    ch_profiles = INSTRAIN_PROFILE.out.profile
+
+    INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
