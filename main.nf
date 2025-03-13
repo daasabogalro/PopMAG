@@ -9,6 +9,7 @@ include { TRANSFORM_CHECKM2_REPORT } from './modules/local/transform_checkm2_rep
 include { FILTER_BINS } from './modules/local/filter_bins'
 include { DREP } from './modules/local/drep'
 include { COVERM } from './modules/local/coverm'
+include { GENERATE_HEATMAP } from './modules/local/generate_heatmap'
 include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
 include { BOWTIE2_INSTRAIN_ALIGN } from './modules/local/bowtie2_instrain_align'
 include { EXTRACT_CONTIG_NAMES } from './modules/local/mag_to_contig'
@@ -95,9 +96,11 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     ch_coverm_input = ch_individual_contig_names
     .combine(ch_bams, by: 0
     )
-    //ch_coverm_input.view()
 
     COVERM(ch_coverm_input)
+    ch_coverage_file = COVERM.out.coverage
+
+    GENERATE_HEATMAP(ch_coverage_file)
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
     ch_prodigal_mags = Channel
