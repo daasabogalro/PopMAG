@@ -8,6 +8,7 @@ include { CHECKM2_PREDICT } from './modules/nf-core/checkm2/predict/main'
 include { TRANSFORM_CHECKM2_REPORT } from './modules/local/transform_checkm2_report'
 include { FILTER_BINS } from './modules/local/filter_bins'
 include { DREP } from './modules/local/drep'
+include { COVERM } from './modules/local/coverm'
 include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
 include { BOWTIE2_INSTRAIN_ALIGN } from './modules/local/bowtie2_instrain_align'
 include { EXTRACT_CONTIG_NAMES } from './modules/local/mag_to_contig'
@@ -64,7 +65,10 @@ workflow {
     DREP(drep_input)
     ch_concatenated_mags = DREP.out.concatenated_mags
     ch_dereplicated_genomes = DREP.out.dereplicated_genomes
-    // DREP.out.dereplicated_genomes.view()
+
+    EXTRACT_CONTIG_NAMES(ch_dereplicated_genomes)
+    ch_combined_contig_names = EXTRACT_CONTIG_NAMES.out.contigs_to_bin_combined
+    ch_individual_contig_names = EXTRACT_CONTIG_NAMES.out.contigs_to_bin_individual
 
     //InStrain setup
 
@@ -86,8 +90,14 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     BOWTIE2_INSTRAIN_ALIGN(ch_bowtie2_align_input)
     ch_bowtie2_mapping = BOWTIE2_INSTRAIN_ALIGN.out.mappings
 
-    EXTRACT_CONTIG_NAMES(ch_dereplicated_genomes)
-    ch_contig_names = EXTRACT_CONTIG_NAMES.out.scaffold_to_bin_combined
+    ch_bams = BOWTIE2_INSTRAIN_ALIGN.out.bams.groupTuple()
+
+    ch_coverm_input = ch_individual_contig_names
+    .combine(ch_bams, by: 0
+    )
+    //ch_coverm_input.view()
+
+    COVERM(ch_coverm_input)
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
     ch_prodigal_mags = Channel
@@ -109,7 +119,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
         .groupTuple(
         by: [0],
         ),by: 0)
-    .combine(ch_contig_names, by: 0)
+    .combine(ch_combined_contig_names, by: 0)
 
     INSTRAIN_PROFILE(ch_instrain_input)
     ch_profiles = INSTRAIN_PROFILE.out.profile
