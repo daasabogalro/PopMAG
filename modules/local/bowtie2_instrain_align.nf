@@ -10,8 +10,13 @@ process BOWTIE2_INSTRAIN_ALIGN {
     input:
     tuple val(meta), path(concatenated_mags), path(index), val(reads_meta), path(reads)
 
+    //TODO: divide the output files to add granularity for other processes
     output:
     tuple val(meta), path(concatenated_mags), path("${reads_meta.id}_to_${meta.id}_genomes.bam"), path("${reads_meta.id}_to_${meta.id}_genomes.bam.bai"), val(reads_meta), emit: mappings
+    tuple val(meta), path(concatenated_mags), emit: concatenated_mags 
+    tuple val(meta), path("*.bam"), emit: bams
+    tuple val(meta), path("*.bam.bai"), emit: bais
+    tuple val(meta), val(reads_meta), emit: reads_sample
     tuple val(meta), val(reads_meta), path("*.bowtie2.log"), emit: log
     path "versions.yml", emit: versions
 
