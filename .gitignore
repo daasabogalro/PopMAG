@@ -1,14 +1,14 @@
 .nextflow*
 work/
 data/
-results/
+*results/
 .DS_Store
 testing/
 testing*
 test_data/
 *.pyc
 null/
-*paths.tsv
+*.tsv
 metadata*
 *.swp
 .nf-core.yml
