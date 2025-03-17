@@ -12,7 +12,7 @@
           },
           "checkm2/predict": {
             "branch": "master",
-            "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+            "git_sha": "6b8947dd401a58b08ca19f1952dc1182d66e4d89",
             "installed_by": ["modules"]
           },
           "prodigal": {
