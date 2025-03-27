@@ -20,7 +20,8 @@ process COVERM {
     coverm genome \
     --genome-definition tr_c2b.txt \
     --bam-files ${bams} \
-    --methods relative_abundance \
+    --methods reads_per_base \
+    --min-covered-fraction 0.5 \
     --threads $task.cpus \
     --output-file ${meta.id}_coverage.txt
     """
