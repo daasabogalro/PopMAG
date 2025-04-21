@@ -32,9 +32,9 @@ process BOWTIE2_INSTRAIN_ALIGN {
         $args \\
         $input \\
         2> "${name}.bowtie2.log" | \\
-        samtools view -@ "${task.cpus}" -bS | \\
+        samtools view -@ "${task.cpus}" -F 4 -bS | \\
         samtools sort -@ "${task.cpus}" -o "${name}.bam"
-    samtools index "${name}.bam"
+    samtools index -@ "${task.cpus}" "${name}.bam"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
