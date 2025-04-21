@@ -22,6 +22,7 @@ process GENERATE_HEATMAP {
     import seaborn as sns
     import matplotlib.pyplot as plt
     import numpy as np
+    import re
     
     # Read the coverage file
     Abundance = pd.read_csv("${coverage_file}", sep="\t")
@@ -32,8 +33,8 @@ process GENERATE_HEATMAP {
     # Remove unmapped reads
     data = Abundance[Abundance.index != 'unmapped']
     
-    # Identify sample columns (those containing 'Relative Abundance')
-    sample_columns = [col for col in data.columns if 'Relative Abundance' in col]
+    # Identify sample columns (those containing 'TPM')
+    sample_columns = [col for col in data.columns if 'TPM' in col]
     
     # Select only the sample columns
     abundance_data = data[sample_columns]
@@ -41,6 +42,14 @@ process GENERATE_HEATMAP {
     # Clean up column names to just sample names
     abundance_data.columns = [col.split('_to_')[0] for col in abundance_data.columns]
     
+    def natural_sort_key(s):
+        return [int(text) if text.isdigit() else text.lower() 
+            for text in re.split('([0-9]+)', s)]
+
+    # Sort columns using natural sorting
+    sorted_columns = sorted(abundance_data.columns, key=natural_sort_key)
+    abundance_data = abundance_data[sorted_columns]
+
     # Create a mask for unmapped rows
     unmapped_mask = np.zeros_like(abundance_data, dtype=bool)
     unmapped_mask[abundance_data.index == 'unmapped'] = True
@@ -69,7 +78,7 @@ process GENERATE_HEATMAP {
                     mask=unmapped_mask,  # Mask unmapped rows from coloration
                     annot_kws={"color": "black"})  # Ensure annotations are always black
     
-    ax.figure.axes[-1].set_ylabel('Relative abundance (%)', size=label_fontsize)
+    ax.figure.axes[-1].set_ylabel('TPM', size=label_fontsize)
 
     plt.xlabel('Samples')
     plt.ylabel('Genomes')
