@@ -65,7 +65,7 @@ Now, you can run the pipeline using:
 nextflow run main.nf \	
    -profile docker \
    --mag_paths mag_samplesheet.csv \
-   --bam_paths bam_samplesheet.csv \
+   --reads_paths reads_samplesheet.csv \
    --metadata metadata.csv \ 
    --outdir <OUTDIR>
 ```
