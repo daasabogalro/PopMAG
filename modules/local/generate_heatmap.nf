@@ -33,8 +33,8 @@ process GENERATE_HEATMAP {
     # Remove unmapped reads
     data = Abundance[Abundance.index != 'unmapped']
     
-    # Identify sample columns (those containing 'TPM')
-    sample_columns = [col for col in data.columns if 'TPM' in col]
+    # Identify sample columns (those containing 'Trimmed Mean')
+    sample_columns = [col for col in data.columns if 'Trimmed Mean' in col]
     
     # Select only the sample columns
     abundance_data = data[sample_columns]
