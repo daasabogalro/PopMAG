@@ -10,7 +10,7 @@ process TRANSFORM_CHECKM2_REPORT {
 
     script:
     """
-    transform_checkm2_report.py \
+    ${projectDir}/bin/transform_checkm2_report.py \
         ${checkm2_report} \
         ${meta.id}_transformed_checkm2_report.csv \
         ${extension}

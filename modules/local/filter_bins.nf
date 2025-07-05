@@ -12,7 +12,7 @@ process FILTER_BINS {
     def completeness = params.min_completeness ?: 90
     def contamination = params.max_contamination ?: 5
     """
-    filter_bins.py \
+    ${projectDir}/bin/filter_bins.py \
         "${checkm2_output_files}" \
         "${transformed_report}" \
         "${meta.id}" \
