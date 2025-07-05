@@ -7,22 +7,22 @@
         "nf-core": {
           "checkm2/databasedownload": {
             "branch": "master",
-            "git_sha": "6b8947dd401a58b08ca19f1952dc1182d66e4d89",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
             "installed_by": ["modules"]
           },
           "checkm2/predict": {
             "branch": "master",
-            "git_sha": "6b8947dd401a58b08ca19f1952dc1182d66e4d89",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
             "installed_by": ["modules"]
           },
           "prodigal": {
             "branch": "master",
-            "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
             "installed_by": ["modules"]
           },
           "prokka": {
             "branch": "master",
-            "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+            "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
             "installed_by": ["modules"]
           }
         }
