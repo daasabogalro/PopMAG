@@ -15,6 +15,7 @@ include { BOWTIE2_INSTRAIN_BUILD } from './modules/local/bowtie2_instrain_build'
 include { BOWTIE2_INSTRAIN_ALIGN } from './modules/local/bowtie2_instrain_align'
 include { EXTRACT_CONTIG_NAMES } from './modules/local/mag_to_contig'
 include { PRODIGAL } from './modules/nf-core/prodigal/main'
+include { METACERBERUS_DATABASEDOWNLOAD } from './modules/local/metacerberus_database'
 include { INSTRAIN_PROFILE } from './modules/local/instrain_profile'
 include { INSTRAIN_COMPARE } from './modules/local/instrain_compare'
 
@@ -37,6 +38,17 @@ workflow {
             CHECKM2_DATABASEDOWNLOAD()//params.checkm2_db_version) This was needed for nf-core module
             ch_checkm2_db = CHECKM2_DATABASEDOWNLOAD.out.database
             }
+    
+    //Download MetaCerberus database
+    if (!params.skip_metacerberus) {
+        if (params.metacerberus_db) {
+            ch_metacerberus_db = [[:], file(params.metacerberus_db, checkIfExists: true)]
+        }
+        else {
+            METACERBERUS_DATABASEDOWNLOAD()
+            ch_metacerberus_db = METACERBERUS_DATABASEDOWNLOAD.out.database
+        }
+    }
             
         // Calculate CheckM2 metrics for all MAGs
         CHECKM2_PREDICT(mag_ch.groupTuple(), ch_checkm2_db)
