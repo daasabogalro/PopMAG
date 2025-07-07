@@ -11,7 +11,7 @@ process SUBSET_VCF_BY_GENOME {
     tuple val(meta), path(vcf_file), path(contigs2bin_file)
 
     output:
-    tuple val(meta), path("genome_vcfs"), emit: genome_vcfs
+    tuple val(meta), path("genome_vcfs/*"), emit: genome_vcfs
 
     script:
     """

@@ -21,6 +21,7 @@ include { INSTRAIN_COMPARE } from './modules/local/instrain_compare'
 include { METACERBERUS_ANNOTATION } from './modules/local/metacerberus_annotation'
 include { SNVS_TO_VCF } from './modules/local/snvs_to_vcf'
 include { SUBSET_VCF_BY_GENOME } from './modules/local/subset_vcf_by_genome'
+include { POGENOM } from './modules/local/pogenom'
 
 workflow {
     // MAGs channel from input file
@@ -164,6 +165,36 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     SUBSET_VCF_BY_GENOME(ch_subset_vcf_input)
     ch_genome_vcfs = SUBSET_VCF_BY_GENOME.out.genome_vcfs
+
+    //TODO: Check if we can access the mag.id from the vcf file. Since we are combining the channels
+    //by sample we are getting all the sample - MAG combinations
+    ch_pogenom_input = ch_dereplicated_genomes
+    .map { meta, files ->
+        // Ensure files is always a list
+        def fileList = files instanceof List ? files : [files]
+        tuple(meta, fileList)
+    }
+    .flatMap { meta, files ->
+        files.collect { file ->
+            def mag_id = file.name.replaceFirst(/\.fa$/, '')
+            def sample_id = meta.id
+            tuple([sample: sample_id], file)
+        }
+    }.combine( ch_genome_vcfs
+    .map { meta, files ->
+
+        def fileList = files instanceof List ? files : [files]
+        tuple(meta, fileList)
+    }
+    .flatMap { meta, files ->
+        files.collect { file ->
+            def mag_id = file.name.replaceFirst(/\.fa$/, '')
+            def sample_id = meta.id
+            tuple([sample: sample_id], file)
+        }}, by: 0)
+
+    POGENOM(ch_pogenom_input)
+    ch_pogenom_results = POGENOM.out.pogenom_results
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
