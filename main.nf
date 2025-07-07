@@ -19,6 +19,7 @@ include { METACERBERUS_DATABASEDOWNLOAD } from './modules/local/metacerberus_dat
 include { INSTRAIN_PROFILE } from './modules/local/instrain_profile'
 include { INSTRAIN_COMPARE } from './modules/local/instrain_compare'
 include { METACERBERUS_ANNOTATION } from './modules/local/metacerberus_annotation'
+include { SNVS_TO_VCF } from './modules/local/snvs_to_vcf'
 
 workflow {
     // MAGs channel from input file
@@ -148,6 +149,15 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     INSTRAIN_PROFILE(ch_instrain_input)
     ch_profiles = INSTRAIN_PROFILE.out.profile
+    ch_snvs = INSTRAIN_PROFILE.out.snvs
+
+    // Convert SNVs to VCF format
+    ch_snv_vcf_input = ch_snvs
+        .groupTuple(by: 0)
+        .combine(ch_combined_contig_names, by: 0)
+
+    SNVS_TO_VCF(ch_snv_vcf_input)
+    ch_vcf_files = SNVS_TO_VCF.out.vcf_files
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
