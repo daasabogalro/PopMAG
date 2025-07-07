@@ -18,17 +18,17 @@ include { PRODIGAL } from './modules/nf-core/prodigal/main'
 include { METACERBERUS_DATABASEDOWNLOAD } from './modules/local/metacerberus_database'
 include { INSTRAIN_PROFILE } from './modules/local/instrain_profile'
 include { INSTRAIN_COMPARE } from './modules/local/instrain_compare'
+include { METACERBERUS_ANNOTATION } from './modules/local/metacerberus_annotation'
 
-// Define the main workflow
 workflow {
-    // Create a channel for input data     
+    // MAGs channel from input file
     mag_ch = Channel
         .fromPath(params.mag_paths)
         .splitCsv(header:true, sep:'\t')
         .map { row ->
             tuple([id: row.sample_id], file(row.mag_path))
     }
-    
+
     //Download CheckM2 database
     if (!params.skip_checkm2) {
         if (params.checkm2_db) {
@@ -38,17 +38,6 @@ workflow {
             CHECKM2_DATABASEDOWNLOAD()//params.checkm2_db_version) This was needed for nf-core module
             ch_checkm2_db = CHECKM2_DATABASEDOWNLOAD.out.database
             }
-    
-    //Download MetaCerberus database
-    if (!params.skip_metacerberus) {
-        if (params.metacerberus_db) {
-            ch_metacerberus_db = [[:], file(params.metacerberus_db, checkIfExists: true)]
-        }
-        else {
-            METACERBERUS_DATABASEDOWNLOAD()
-            ch_metacerberus_db = METACERBERUS_DATABASEDOWNLOAD.out.database
-        }
-    }
             
         // Calculate CheckM2 metrics for all MAGs
         CHECKM2_PREDICT(mag_ch.groupTuple(), ch_checkm2_db)
@@ -116,16 +105,36 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     GENERATE_HEATMAP(ch_coverage_file)
 
     // TODO: Find a way to simplify the usage of channels that manipulate params.mag_paths 
-    ch_prodigal_mags = Channel
-    .fromPath(params.mag_paths)
-    .splitCsv(header:true, sep:'\t')
-    .map { row -> 
-        def mag_id = file(row.mag_path).name.replaceFirst(/\.fa$/, '')
-        tuple([id: mag_id, sample: row.sample_id], file(row.mag_path)) 
+    ch_prodigal_mags = ch_dereplicated_genomes
+    .map { meta, files ->
+        // Ensure files is always a list
+        def fileList = files instanceof List ? files : [files]
+        tuple(meta, fileList)
+    }
+    .flatMap { meta, files ->
+        files.collect { file ->
+            def mag_id = file.name.replaceFirst(/\.fa$/, '')
+            def sample_id = meta.id
+            tuple([id: mag_id, sample: sample_id], file)
+        }
     }
 
     PRODIGAL(ch_prodigal_mags,'gff')
+    ch_prodigal_faa = PRODIGAL.out.amino_acid_fasta
     ch_prodigal_fna = PRODIGAL.out.nucleotide_fasta
+    
+    if (!params.skip_metacerberus) {
+        if (params.metacerberus_db) {
+            ch_metacerberus_db = [[:], file(params.metacerberus_db, checkIfExists: true)]
+        }
+        else {
+            METACERBERUS_DATABASEDOWNLOAD()
+            ch_metacerberus_db = METACERBERUS_DATABASEDOWNLOAD.out.database
+
+            METACERBERUS_ANNOTATION(ch_prodigal_faa, ch_metacerberus_db)
+            ch_metacerberus_annotations = METACERBERUS_ANNOTATION.out.final_annotation
+        }
+    }
 
     ch_instrain_input = ch_bowtie2_mapping
     .combine(ch_prodigal_fna

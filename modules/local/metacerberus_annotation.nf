@@ -1,4 +1,5 @@
-process METACERBERUS_DATABASEDOWNLOAD {
+process METACERBERUS_ANNOTATION {
+    tag "${meta.id}"
     label 'process_high'
 
     conda "bioconda::metacerberus==1.4.0"
@@ -7,22 +8,28 @@ process METACERBERUS_DATABASEDOWNLOAD {
     'biocontainers/metacerberus:1.4.0--pyhdfd78af_1' }"
 
     input:
+    tuple val(meta), path(prodigal_genes)
+    tuple val(db_meta), path(DB)
 
     output:
-    tuple val(meta), path("metacerberus_db"), emit: database
-    path("versions.yml"), emit: versions
+    tuple val(meta), path("annotation/${meta.sample}/${meta.id}"), emit: annotation_dir
+    tuple val(meta), path("annotation/${meta.sample}/${meta.id}/final/*/final_annotation_summary.tsv"), emit: final_annotation
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    additional_dbs = task.ext.additional_dbs ?: ''
-    meta           = [id: 'metacerberus_db']
-    """
-    metacerberus.py --download 
 
-    cp -r /usr/local/lib/python3.9/site-packages/meta_cerberus/DB ./metacerberus_db
+    """
+    gunzip -c ${prodigal_genes} > ${meta.id}.faa
+
+    metacerberus.py --protein ${meta.id}.faa \\
+    --hmm COG \\
+    --illumina \\
+    --meta \\
+    --db-path ${DB} \\
+    --dir-out annotation/${meta.sample}/${meta.id}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
