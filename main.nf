@@ -22,6 +22,7 @@ include { METACERBERUS_ANNOTATION } from './modules/local/metacerberus_annotatio
 include { SNVS_TO_VCF } from './modules/local/snvs_to_vcf'
 include { SUBSET_VCF_BY_GENOME } from './modules/local/subset_vcf_by_genome'
 include { POGENOM } from './modules/local/pogenom'
+include { EXTRACT_BIN_METRICS } from './modules/local/extract_bin_metrics'
 
 workflow {
     // MAGs channel from input file
@@ -152,6 +153,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     INSTRAIN_PROFILE(ch_instrain_input)
     ch_profiles = INSTRAIN_PROFILE.out.profile
     ch_snvs = INSTRAIN_PROFILE.out.snvs
+    ch_gene_info = INSTRAIN_PROFILE.out.gene_info
 
     // Convert SNVs to VCF format
     ch_snv_vcf_input = ch_snvs
@@ -195,6 +197,14 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     POGENOM(ch_pogenom_input)
     ch_pogenom_results = POGENOM.out.pogenom_results
+
+    // Extract bin metrics from inStrain gene_info files
+    ch_extract_bin_metrics_input = ch_gene_info
+        .groupTuple(by: 0)  // Group by meta.id (sample)
+        .combine(ch_combined_contig_names, by: 0)  // Join with contigs2bin files
+
+    EXTRACT_BIN_METRICS(ch_extract_bin_metrics_input)
+    ch_bin_metrics = EXTRACT_BIN_METRICS.out.bin_metrics
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
