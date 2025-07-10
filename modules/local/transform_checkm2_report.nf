@@ -1,4 +1,5 @@
 process TRANSFORM_CHECKM2_REPORT {
+    tag "${meta.id}"
     label 'process_single'
     
     input:

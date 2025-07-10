@@ -1,4 +1,5 @@
 process EXTRACT_CONTIG_NAMES {
+    tag "${meta.id}"
     label 'process_single'
     
     input:
