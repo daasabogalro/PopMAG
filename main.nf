@@ -24,6 +24,8 @@ include { SUBSET_VCF_BY_GENOME } from './modules/local/subset_vcf_by_genome'
 include { POGENOM } from './modules/local/pogenom'
 include { EXTRACT_BIN_METRICS } from './modules/local/extract_bin_metrics'
 include { MERGE_REPORTS_METACERBERUS_INSTRAIN } from './modules/local/merge_reports_metacerberus_instrain'
+include { SINGLEM_METAPACKAGE } from './modules/local/singleM_metapackage'
+include { SINGLEM } from './modules/local/singleM'
 
 workflow {
     // MAGs channel from input file
@@ -222,13 +224,21 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
                 tuple([id: bin_name, sample: sample_id], file)
             }
         }
-    }   
+       
 
         ch_merge_input = ch_bin_metrics_for_merge.combine(ch_metacerberus_annotations, by: 0)
 
         MERGE_REPORTS_METACERBERUS_INSTRAIN(ch_merge_input)
         ch_merged_reports = MERGE_REPORTS_METACERBERUS_INSTRAIN.out.merged_reports
-    
+    }
+
+    SINGLEM_METAPACKAGE()
+    ch_singleM_metapackage = SINGLEM_METAPACKAGE.out.singleM_metapackage
+
+    SINGLEM(ch_dereplicated_genomes, ch_singleM_metapackage)
+    ch_singleM_results = SINGLEM.out.singleM_profile
+
+    //TODO: Add a way to merge the singleM results with the other results
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
