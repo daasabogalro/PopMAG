@@ -10,7 +10,7 @@ process EXTRACT_BIN_METRICS {
     tuple val(meta), path(gene_metrics_files), path(contigs2bin_file)
     
     output:
-    tuple val(meta), path("bin_metrics/*"), emit: bin_metrics
+    tuple val(meta), path("bin_metrics/*_metrics.tsv"), emit: bin_metrics
     path("versions.yml"), emit: versions
 
     when:

@@ -23,6 +23,7 @@ include { SNVS_TO_VCF } from './modules/local/snvs_to_vcf'
 include { SUBSET_VCF_BY_GENOME } from './modules/local/subset_vcf_by_genome'
 include { POGENOM } from './modules/local/pogenom'
 include { EXTRACT_BIN_METRICS } from './modules/local/extract_bin_metrics'
+include { MERGE_REPORTS_METACERBERUS_INSTRAIN } from './modules/local/merge_reports_metacerberus_instrain'
 
 workflow {
     // MAGs channel from input file
@@ -200,11 +201,34 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     // Extract bin metrics from inStrain gene_info files
     ch_extract_bin_metrics_input = ch_gene_info
-        .groupTuple(by: 0)  // Group by meta.id (sample)
-        .combine(ch_combined_contig_names, by: 0)  // Join with contigs2bin files
+        .groupTuple(by: 0)  
+        .combine(ch_combined_contig_names, by: 0) 
 
     EXTRACT_BIN_METRICS(ch_extract_bin_metrics_input)
     ch_bin_metrics = EXTRACT_BIN_METRICS.out.bin_metrics
+
+    // Merge inStrain metrics with MetaCerberus annotations
+    if (!params.skip_metacerberus) {
+
+        ch_bin_metrics_for_merge = ch_bin_metrics
+            .map { meta, files ->
+                def fileList = files instanceof List ? files : [files]
+                tuple(meta, fileList)
+            }
+           .flatMap { meta, files ->
+            files.collect { file ->
+                def sample_id = meta.id
+                def bin_name = file.name.replaceFirst(/_metrics\.tsv$/, '')
+                tuple([id: bin_name, sample: sample_id], file)
+            }
+        }
+    }   
+
+        ch_merge_input = ch_bin_metrics_for_merge.combine(ch_metacerberus_annotations, by: 0)
+
+        MERGE_REPORTS_METACERBERUS_INSTRAIN(ch_merge_input)
+        ch_merged_reports = MERGE_REPORTS_METACERBERUS_INSTRAIN.out.merged_reports
+    
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
