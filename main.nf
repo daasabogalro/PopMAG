@@ -26,6 +26,7 @@ include { EXTRACT_BIN_METRICS } from './modules/local/extract_bin_metrics'
 include { MERGE_REPORTS_METACERBERUS_INSTRAIN } from './modules/local/merge_reports_metacerberus_instrain'
 include { SINGLEM_METAPACKAGE } from './modules/local/singleM_metapackage'
 include { SINGLEM } from './modules/local/singleM'
+include { MERGE_GENOME_REPORTS_INSTRAIN } from './modules/local/combine_genomes_report'
 
 workflow {
     // MAGs channel from input file
@@ -157,6 +158,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     ch_profiles = INSTRAIN_PROFILE.out.profile
     ch_snvs = INSTRAIN_PROFILE.out.snvs
     ch_gene_info = INSTRAIN_PROFILE.out.gene_info
+    ch_genome_info = INSTRAIN_PROFILE.out.genome_info
 
     // Convert SNVs to VCF format
     ch_snv_vcf_input = ch_snvs
@@ -238,7 +240,8 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     SINGLEM(ch_dereplicated_genomes, ch_singleM_metapackage)
     ch_singleM_results = SINGLEM.out.singleM_profile
 
-    //TODO: Add a way to merge the singleM results with the other results
+    MERGE_GENOME_REPORTS_INSTRAIN(ch_genome_info.groupTuple())
+    ch_merged_instrain_genome_reports = MERGE_GENOME_REPORTS_INSTRAIN.out.merged_instrain_genome_reports
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 }
