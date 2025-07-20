@@ -121,7 +121,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     }
     .flatMap { meta, files ->
         files.collect { file ->
-            def mag_id = file.name.replaceFirst(/\.fa$/, '')
+            def mag_id = file.baseName
             def sample_id = meta.id
             tuple([id: mag_id, sample: sample_id], file)
         }
@@ -183,7 +183,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     }
     .flatMap { meta, files ->
         files.collect { file ->
-            def mag_id = file.name.replaceFirst(/\.fa$/, '')
+            def mag_id = file.baseName
             def sample_id = meta.id
             tuple([sample: sample_id], file)
         }
@@ -195,7 +195,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     }
     .flatMap { meta, files ->
         files.collect { file ->
-            def mag_id = file.name.replaceFirst(/\.fa$/, '')
+            def mag_id = file.baseName
             def sample_id = meta.id
             tuple([sample: sample_id], file)
         }}, by: 0)
@@ -212,6 +212,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     ch_bin_metrics = EXTRACT_BIN_METRICS.out.bin_metrics
 
     // Merge inStrain metrics with MetaCerberus annotations
+    ch_merged_reports = Channel.empty()
     if (!params.skip_metacerberus) {
 
         ch_bin_metrics_for_merge = ch_bin_metrics
@@ -244,4 +245,5 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     ch_merged_instrain_genome_reports = MERGE_GENOME_REPORTS_INSTRAIN.out.merged_instrain_genome_reports
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
+
 }
