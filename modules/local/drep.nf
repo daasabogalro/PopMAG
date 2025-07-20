@@ -13,7 +13,7 @@ process DREP {
     output:
     tuple val(meta), path("dRep_${meta.id}"), emit: drep_output
     tuple val(meta), path("${meta.id}_concatenated.fa"), emit: concatenated_mags
-    tuple val(meta), path("dRep_${meta.id}/dereplicated_genomes/*.fa"), emit: dereplicated_genomes
+    tuple val(meta), path("dRep_${meta.id}/dereplicated_genomes/*"), emit: dereplicated_genomes
     path "versions.yml", emit: versions
 
     script:
@@ -32,7 +32,7 @@ process DREP {
     fi
 
     # Concatenate the dereplicated genomes
-    cat ${prefix}/dereplicated_genomes/*.fa > ${meta.id}_concatenated.fa
+    cat ${prefix}/dereplicated_genomes/* > ${meta.id}_concatenated.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
