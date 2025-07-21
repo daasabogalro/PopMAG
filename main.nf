@@ -2,7 +2,6 @@
 
 nextflow.enable.dsl = 2
 
-// Import modules
 include { CHECKM2_DATABASEDOWNLOAD } from './modules/local/checkm2_database'
 //include { CHECKM2_DATABASEDOWNLOAD } from './modules/nf-core/checkm2/databasedownload/main'
 include { CHECKM2_PREDICT } from './modules/nf-core/checkm2/predict/main'
@@ -64,6 +63,8 @@ workflow {
             //Prepare input for filtering
             filter_input = mag_ch.groupTuple()
                 .join(TRANSFORM_CHECKM2_REPORT.out.transformed_report)
+
+            //TODO: Move the contig header renaming outside of the filter_bins module
 
             FILTER_BINS(filter_input)
             ch_filtered_bins = FILTER_BINS.out.filtered_bins
@@ -138,10 +139,10 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
         else {
             METACERBERUS_DATABASEDOWNLOAD()
             ch_metacerberus_db = METACERBERUS_DATABASEDOWNLOAD.out.database
-
-            METACERBERUS_ANNOTATION(ch_prodigal_faa, ch_metacerberus_db)
-            ch_metacerberus_annotations = METACERBERUS_ANNOTATION.out.final_annotation
         }
+
+        METACERBERUS_ANNOTATION(ch_prodigal_faa, ch_metacerberus_db)
+        ch_metacerberus_annotations = METACERBERUS_ANNOTATION.out.final_annotation
     }
 
     ch_instrain_input = ch_bowtie2_mapping

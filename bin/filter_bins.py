@@ -25,7 +25,23 @@ def filter_bins(checkm2_output_files, transformed_report, meta_id, min_completen
                     matching_files = [f for f in checkm2_output_files if genome_name in f]
                     if matching_files:
                         genome_file = matching_files[0]
-                        shutil.copy(genome_file, os.path.join(f"{meta_id}_filtered_bins", os.path.basename(genome_file)))
+                        dest_path = os.path.join(f"{meta_id}_filtered_bins", os.path.basename(genome_file))
+                        shutil.copy(genome_file, dest_path)
+                        prefix = os.path.splitext(os.path.basename(genome_file))[0]
+                        prefix_contig_headers(dest_path, prefix)
+
+def prefix_contig_headers(fasta_path, prefix):
+    temp_path = fasta_path + ".tmp"
+    contig_num = 1
+    with open(fasta_path, 'r') as infile, open(temp_path, 'w') as outfile:
+        for line in infile:
+            if line.startswith('>'):
+                new_header = f">{prefix}_contig{contig_num:09d}\n"
+                outfile.write(new_header)
+                contig_num += 1
+            else:
+                outfile.write(line)
+    os.replace(temp_path, fasta_path)
 
 if __name__ == "__main__":
     checkm2_output_files = sys.argv[1].split()
