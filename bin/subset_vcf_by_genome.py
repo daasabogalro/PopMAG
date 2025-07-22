@@ -8,6 +8,7 @@ import argparse
 import pandas as pd
 import os
 from collections import defaultdict
+import re
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Subset a VCF file by genome using a contigs2bin.tsv file")
@@ -96,25 +97,48 @@ def subset_vcf_by_genome(vcf_file, contig_to_genome, out_dir, prefix='', suffix=
                     continue
             converted_line = convert_ad_to_ro_ao(line)
             genome_variants[genome].append(converted_line)
-    header_lines = []
+
+    # Separate contig and other header lines, and the #CHROM line
+    contig_header_lines = []
+    other_header_lines = []
+    chrom_header_line = None
     with open(vcf_file, 'r') as f:
         for line in f:
-            if line.startswith('##FORMAT=<ID=AD'):
-                header_lines.append('##FORMAT=<ID=RO,Number=1,Type=Integer,Description="Reference allele observation count">\n')
-                header_lines.append('##FORMAT=<ID=AO,Number=A,Type=Integer,Description="Alternate allele observation count">\n')
+            if line.startswith('##contig='):
+                contig_header_lines.append(line)
+            elif line.startswith('##'):
+                other_header_lines.append(line)
+            elif line.startswith('#CHROM'):
+                chrom_header_line = line
             elif line.startswith('#'):
-                header_lines.append(line)
+                other_header_lines.append(line)
             else:
                 break
+
     genome_counts = defaultdict(int)
     for genome, variants in genome_variants.items():
         if not variants:
             continue
         vcf_filename = f"{prefix}{genome}{suffix}.vcf"
         vcf_path = os.path.join(out_dir, vcf_filename)
+        # Collect contigs for this genome
+        genome_contigs = set()
+        for variant_line in variants:
+            chrom = variant_line.split('\t')[0]
+            genome_contigs.add(chrom)
+        # Filter contig header lines
+        filtered_contig_headers = []
+        for line in contig_header_lines:
+            m = re.search(r'ID=([^,>]+)', line)
+            if m and m.group(1) in genome_contigs:
+                filtered_contig_headers.append(line)
         with open(vcf_path, 'w') as current_vcf:
-            for header_line in header_lines:
+            for header_line in other_header_lines:
                 current_vcf.write(header_line)
+            for contig_line in filtered_contig_headers:
+                current_vcf.write(contig_line)
+            if chrom_header_line:
+                current_vcf.write(chrom_header_line)
             for variant_line in variants:
                 current_vcf.write(variant_line)
                 genome_counts[genome] += 1

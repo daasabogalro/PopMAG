@@ -45,10 +45,13 @@ def process_snv_file(filepath, sample, log):
         log(f"Error reading {filepath}: {e}")
         return None
 
-def write_vcf_header(vcf_file, samples, ref_name):
+def write_vcf_header(vcf_file, samples, ref_name, contigs=None):
     vcf_file.write('##fileformat=VCFv4.2\n')
     vcf_file.write(f'##source=inStrain_SNV_converter\n')
     vcf_file.write(f'##reference={ref_name}\n')
+    if contigs:
+        for contig in contigs:
+            vcf_file.write(f'##contig=<ID={contig}>\n')
     vcf_file.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
     vcf_file.write('##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Number of observation for each allele">\n')
     vcf_file.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t' + '\t'.join(samples) + '\n')
@@ -189,9 +192,12 @@ Examples:
         vcf_path = os.path.join(args.out_dir, vcf_name)
         log(f"  Writing VCF: {vcf_path} with {len(samples)} samples")
         
+        # Collect unique contig names
+        contigs = list(merged['scaffold'].dropna().unique())
+        
         try:
             with open(vcf_path, 'w') as vcf:
-                write_vcf_header(vcf, samples, ref)
+                write_vcf_header(vcf, samples, ref, contigs=contigs)
                 
                 sites_written = 0
                 for idx, row in merged.iterrows():
