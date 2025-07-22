@@ -1,6 +1,8 @@
 process EXTRACT_CONTIG_NAMES {
     tag "${meta.id}"
     label 'process_single'
+
+    container 'community.wave.seqera.io/library/pip_biopython:326a6be8fb21b301'
     
     input:
     tuple val(meta), path(mags)
