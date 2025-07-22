@@ -19,7 +19,5 @@ process SUBSET_VCF_BY_GENOME {
         --vcf_file ${vcf_file} \
         --contigs2bin_file ${contigs2bin_file} \
         --out_dir genome_vcfs
-
-    ls -lh genome_vcfs
     """
 }
