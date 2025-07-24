@@ -4,6 +4,7 @@ import csv
 import os
 import shutil
 import sys
+import re
 
 def filter_bins(checkm2_output_files, transformed_report, meta_id, min_completeness, max_contamination):
     os.mkdir(f"{meta_id}_filtered_bins")
@@ -28,6 +29,8 @@ def filter_bins(checkm2_output_files, transformed_report, meta_id, min_completen
                         dest_path = os.path.join(f"{meta_id}_filtered_bins", os.path.basename(genome_file))
                         shutil.copy(genome_file, dest_path)
                         prefix = os.path.splitext(os.path.basename(genome_file))[0]
+                        # Sanitize prefix: replace non-alphanumeric (except _) with _
+                        prefix = re.sub(r'[^A-Za-z0-9_]', '_', prefix)
                         prefix_contig_headers(dest_path, prefix)
 
 def prefix_contig_headers(fasta_path, prefix):
