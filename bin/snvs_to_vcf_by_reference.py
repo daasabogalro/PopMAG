@@ -187,6 +187,9 @@ Examples:
         merged['POS'] = merged['position'] + 1
         samples = list(dfs.keys())
         
+        # Sort merged DataFrame by scaffold and POS
+        merged_sorted = merged.sort_values(['scaffold', 'POS'])
+        
         # Write VCF file
         vcf_name = f"{args.vcf_prefix}{ref}{args.vcf_suffix}.vcf"
         vcf_path = os.path.join(args.out_dir, vcf_name)
@@ -200,7 +203,7 @@ Examples:
                 write_vcf_header(vcf, samples, ref, contigs=contigs)
                 
                 sites_written = 0
-                for idx, row in merged.iterrows():
+                for idx, row in merged_sorted.iterrows():
                     chrom = row['scaffold']
                     pos = row['POS']
                     
