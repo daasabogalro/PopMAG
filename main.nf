@@ -26,6 +26,7 @@ include { MERGE_REPORTS_METACERBERUS_INSTRAIN } from './modules/local/merge_repo
 include { SINGLEM_METAPACKAGE } from './modules/local/singleM_metapackage'
 include { SINGLEM } from './modules/local/singleM'
 include { MERGE_GENOME_REPORTS_INSTRAIN } from './modules/local/combine_genomes_report'
+include { LAUNCH_SHINY_APP } from './modules/local/shiny_app'
 
 workflow {
     // MAGs channel from input file
@@ -176,33 +177,34 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     //TODO: Check if we can access the mag.id from the vcf file. Since we are combining the channels
     //by sample we are getting all the sample - MAG combinations
-    ch_pogenom_input = ch_dereplicated_genomes
-    .map { meta, files ->
-        // Ensure files is always a list
-        def fileList = files instanceof List ? files : [files]
-        tuple(meta, fileList)
-    }
-    .flatMap { meta, files ->
-        files.collect { file ->
-            def mag_id = file.baseName
-            def sample_id = meta.id
-            tuple([sample: sample_id], file)
-        }
-    }.combine( ch_genome_vcfs
-    .map { meta, files ->
 
+    // Create a keyed channel for MAGs: e.g., [ "sample1:24_bin.001", [sample: "sample1"], /path/to/24_bin.001.fasta ]
+    mags_for_join = ch_dereplicated_genomes.flatMap { meta, files ->
         def fileList = files instanceof List ? files : [files]
-        tuple(meta, fileList)
+        fileList.collect { file ->
+            def key = "${meta.id}:${file.getBaseName()}"
+            tuple(key, [sample: meta.id], file)
+        }
     }
-    .flatMap { meta, files ->
-        files.collect { file ->
-            def mag_id = file.baseName
-            def sample_id = meta.id
-            tuple([sample: sample_id], file)
-        }}, by: 0)
+
+    // Create a keyed channel for VCFs with the same key structure: e.g., [ "sample1:24_bin.001", /path/to/24_bin.001.vcf ]
+    vcfs_for_join = ch_genome_vcfs.flatMap { meta, files ->
+        def fileList = files instanceof List ? files : [files]
+        fileList.collect { file ->
+            def key = "${meta.id}:${file.getBaseName()}"
+            tuple(key, file)
+        }
+    }
+
+    // Join by the unique key to create one-to-one pairings, and reformat the tuple for POGENOM input.
+    ch_pogenom_input = mags_for_join.join(vcfs_for_join)
+        .map { key, meta, mag_file, vcf_file ->
+            tuple(meta, mag_file, vcf_file)
+        }
 
     POGENOM(ch_pogenom_input)
     ch_pogenom_results = POGENOM.out.pogenom_results
+    ch_pogenom_fst = POGENOM.out.pogenom_fst
 
     // Extract bin metrics from inStrain gene_info files
     ch_extract_bin_metrics_input = ch_gene_info
@@ -211,7 +213,8 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     EXTRACT_BIN_METRICS(ch_extract_bin_metrics_input)
     ch_bin_metrics = EXTRACT_BIN_METRICS.out.bin_metrics
-
+    ch_SNVs_summary = EXTRACT_BIN_METRICS.out.combined_summary
+    
     // Merge inStrain metrics with MetaCerberus annotations
     ch_merged_reports = Channel.empty()
     if (!params.skip_metacerberus) {
@@ -247,4 +250,13 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
 
+    ch_metadata = params.metadata_file ? file(params.metadata_file) : file('/no/file/provided', checkIfExists: false)
+
+    LAUNCH_SHINY_APP(
+                    ch_merged_reports.map { meta, tsv -> tsv }.collect(),
+                    ch_metadata,
+                    ch_singleM_results.map { meta, tsv -> tsv }.collect(),
+                    ch_merged_instrain_genome_reports.map { meta, tsv -> tsv }.collect(),
+                    ch_pogenom_fst.map { meta, tsv -> tsv }.collect()
+                    )
 }
