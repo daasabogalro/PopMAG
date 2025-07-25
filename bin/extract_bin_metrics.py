@@ -124,7 +124,7 @@ def calculate_sample_stats(df: pd.DataFrame) -> List[Dict[str, Union[str, int, f
     
     return sample_stats
 
-def process_multiple_bins(contigs_to_bin_file: str, gene_metrics_files: List[str], output_dir: str) -> None:
+def process_multiple_bins(contigs_to_bin_file: str, gene_metrics_files: List[str], output_dir: str, sample_name: str) -> None:
     """
     Process multiple bins and create a combined summary file.
     
@@ -175,7 +175,7 @@ def process_multiple_bins(contigs_to_bin_file: str, gene_metrics_files: List[str
         cols = ['bin_name', 'sample_name'] + [col for col in summary_df.columns if col not in ['bin_name', 'sample_name']]
         summary_df = summary_df[cols]
         
-        combined_summary_file = output_path / "combined_summary.tsv"
+        combined_summary_file = output_path / f"SNVs_{sample_name}_summary.tsv"
         summary_df.to_csv(combined_summary_file, sep='\t', index=False)
         logger.info(f"Saved combined summary to {combined_summary_file}")
     else:
@@ -185,60 +185,26 @@ def main() -> None:
     """
     Main function to process gene metrics for bins.
     """
-    parser = argparse.ArgumentParser(description='Extract gene metrics for bins')
-    parser.add_argument('contigs_to_bin', help='Path to the contigs to bin file')
-    parser.add_argument('gene_metrics', nargs='+', help='Path(s) to the gene metrics file(s)')
-    parser.add_argument('-b', '--bin_name', help='Name of the bin to extract metrics for (optional)')
-    parser.add_argument('-o', '--output', help='Output file (optional, default is stdout)')
-    parser.add_argument('-d', '--output_dir', help='Output directory for multiple bin processing')
-    
+    parser = argparse.ArgumentParser(description="Extract bin metrics from inStrain gene_info files.")
+    parser.add_argument("contigs_to_bins", help="Path to the contigs_to_bins.tsv file.")
+    parser.add_argument("gene_metrics", nargs='+', help="Path to one or more gene_info.tsv files.")
+    parser.add_argument("-d", "--output_dir", default=".", help="Output directory to save the metrics files.")
+    parser.add_argument("-s", "--sample", required=True, help="Sample name for the summary file.")
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging')
     args = parser.parse_args()
-    
+
+    # Configure logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    # Create the output directory if it doesn't exist
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     try:
-        if args.bin_name:
-            # Process single bin
-            filtered_metrics = get_bin_gene_metrics(
-                args.contigs_to_bin, 
-                args.gene_metrics, 
-                args.bin_name
-            )
-            
-            if filtered_metrics is not None:
-                # Calculate statistics for each sample
-                sample_stats = calculate_sample_stats(filtered_metrics)
-                
-                logger.info(f"\nSummary statistics for bin {args.bin_name}:")
-                for stats in sample_stats:
-                    logger.info(f"\nSample: {stats['sample_name']}")
-                    for col, value in stats.items():
-                        if col != 'sample_name':
-                            logger.info(f"{col}: {value}")
-                    
-                if args.output:
-                    filtered_metrics = filtered_metrics.sort_values(['gene', 'sample_name'])
-                    filtered_metrics.to_csv(args.output, sep='\t', index=False)
-                    logger.info(f"Saved {len(filtered_metrics)} gene metrics to {args.output}")
-                    
-                    summary_file = args.output.replace('.tsv', '_summary.tsv').replace('.txt', '_summary.txt')
-                    if summary_file == args.output:
-                        summary_file = args.output + '_summary'
-                    
-                    summary_df = pd.DataFrame(sample_stats)
-                    summary_df.to_csv(summary_file, sep='\t', index=False)
-                    logger.info(f"Saved summary statistics to {summary_file}")
-                else:
-                    logger.info(f"Found {len(filtered_metrics)} gene metrics for bin {args.bin_name}:")
-                    print(filtered_metrics.to_string())
-        else:
-            # Process multiple bins
-            if not args.output_dir:
-                logger.error("Output directory is required for multiple bin processing")
-                sys.exit(1)
-            
-            process_multiple_bins(args.contigs_to_bin, args.gene_metrics, args.output_dir)
-            
+        process_multiple_bins(args.contigs_to_bins, args.gene_metrics, args.output_dir, args.sample)
     except Exception as e:
-        logger.error(f"An error occurred: {str(e)}")
+        logger.error(f"An error occurred: {e}", exc_info=args.verbose)
         sys.exit(1)
 
 if __name__ == "__main__":
