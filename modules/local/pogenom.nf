@@ -9,7 +9,7 @@ process POGENOM {
     
     output:
     tuple val(meta), path("*"), emit: pogenom_results
-    //tuple val(meta), path("*.fst.txt"), emit: pogenom_fst
+    tuple val(meta), path("*.fst.txt"), emit: pogenom_fst
     //tuple val(meta), path("*.intradiv*"), emit: pogenom_intradiv
     path("versions.yml"), emit: versions
 
