@@ -10,7 +10,8 @@ process EXTRACT_BIN_METRICS {
     tuple val(meta), path(gene_metrics_files), path(contigs2bin_file)
     
     output:
-    tuple val(meta), path("bin_metrics/*_metrics.tsv"), emit: bin_metrics
+    tuple val(meta), path("*_metrics.tsv"), emit: bin_metrics
+    path("SNVs_${meta.id}_summary.tsv"), emit: combined_summary
     path("versions.yml"), emit: versions
 
     when:
@@ -18,13 +19,15 @@ process EXTRACT_BIN_METRICS {
 
     script:
     def args = task.ext.args ?: ''
+    def sample_id = meta.id
     """
     mkdir -p bin_metrics
     
     python3 ${projectDir}/bin/extract_bin_metrics.py \\
         ${contigs2bin_file} \\
         ${gene_metrics_files.join(' ')} \\
-        -d bin_metrics \\
+        -d . \\
+        -s ${sample_id} \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
