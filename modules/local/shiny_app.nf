@@ -4,7 +4,7 @@ process LAUNCH_SHINY_APP {
     errorStrategy 'ignore' 
 
     container 'docker.io/daasabogalro/popmag-dashboard:latest'
-    containerOptions = '-p 3838:3838'
+    containerOptions '-p 3838:3838'
 
     input:
     path(SNVs_summary)
