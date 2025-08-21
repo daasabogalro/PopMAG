@@ -18,6 +18,7 @@ process LAUNCH_SHINY_APP {
 
     script:
     def args = task.ext.args ?: ''
+    println "To access the shiny app please open 0.0.0.0:3838 or localhost:3838 in your browser"
     """
     mkdir -p /srv/shiny-server/app/
     cp *.tsv /srv/shiny-server/app/
