@@ -21,7 +21,7 @@ Prerequisites
 Installation Steps
 ------------------
 
-#. Install Nextflow
+1. Install Nextflow
 
 .. code-block:: console
 
@@ -35,7 +35,7 @@ Verify installation:
 
     nextflow info
 
-#. Choose Execution Profile
+2. Choose Execution Profile
 PopMAG provides multiple execution profiles for different environments:
 
 * Docker (recommended): -profile docker 

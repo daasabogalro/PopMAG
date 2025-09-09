@@ -1,4 +1,4 @@
-Welcome to PopMAG's documentation!
+PopMAG
 ===================================
 
 **PopMAG** is a bioinformatics pipeline that integrates genome-resolved metagenomics with populations genomics workflows. 
