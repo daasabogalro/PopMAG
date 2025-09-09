@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/PopMAG//nextflow_schema.json",
+  "title": "PopMAG pipeline parameters",
+  "description": "Population genetics metrics of MAGs",
+  "type": "object",
+  "$defs": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "required": ["outdir"],
+      "properties": {
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+          "fa_icon": "fas fa-folder-open",
+          "default": "results"
+        },
+        "mag_paths": {
+          "type": "string",
+          "default": "mag_paths.tsv",
+          "description": "Path to the samplesheet with MAG ids and locations",
+          "format": "file-path"
+        },
+        "reads_paths": {
+          "type": "string",
+          "default": "reads_paths.tsv",
+          "description": "Path to the samplesheet with reads ids and locations",
+          "format": "file-path"
+        },
+        "metadata_file": {
+          "type": "string",
+          "default": "metadata.csv",
+          "description": "Path to the metadata file. The sample_id column is required for this file to be accepted.",
+          "format": "file-path"
+        },
+        "publish_dir_mode": {
+          "type": "string",
+          "default": "copy",
+          "description": "The file publishing method. Can be one of the following values:",
+          "enum": ["copy", "copyNoFollow", "link", "move", "rellink", "symlink"]
+        }
+      }
+    },
+    "quality_control_options": {
+      "title": "Quality control options",
+      "type": "object",
+      "description": "Define execution behavior, checkm2 database version and location, and filtering tresholds.",
+      "default": "",
+      "properties": {
+        "checkm2_db": {
+          "type": "string",
+          "description": "Location of the checkm2 database."
+        },
+        "checkm2_db_version": {
+          "type": "integer",
+          "default": 14897628,
+          "description": "Specific checkm2 database version to be downloaded."
+        },
+        "skip_checkm2": {
+          "type": "boolean",
+          "description": "Do not run checkm2."
+        },
+        "min_completeness": {
+          "type": "integer",
+          "default": 90,
+          "description": "Lowest value of completeness for a genome to be accepted for further analysis."
+        },
+        "max_contamination": {
+          "type": "integer",
+          "default": 5,
+          "description": "Highest value of contamination for a genome to be accepted for further analysis."
+        }
+      }
+    },
+    "functional_annotation": {
+      "title": "Functional Annotation",
+      "type": "object",
+      "description": "Define behavior and metacerberus database location",
+      "default": "",
+      "properties": {
+        "metacerberus_db": {
+          "type": "string",
+          "description": "Location of the metacerberus database."
+        },
+        "skip_metacerberus": {
+          "type": "boolean",
+          "description": "Do not run metacerberus."
+        }
+      }
+    },
+    "snvs_to_vcf_options": {
+      "title": "SNVs to VCF options",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "min_coverage": {
+          "type": "integer",
+          "default": 0,
+          "description": "Minimum coverage for an SNV to be accepted."
+        },
+        "min_var_freq": {
+          "type": "integer",
+          "default": 0,
+          "description": "Minimum frequency for an SNV to be accepted."
+        },
+        "include_nonvariant": {
+          "type": "boolean",
+          "description": "Whether to include positions that do not have variants."
+        },
+        "vcf_prefix": {
+          "type": "string",
+          "description": "String to identify your VCFs using a prefix."
+        },
+        "vcf_suffix": {
+          "type": "string",
+          "description": "String to identify your VCFs using a suffix."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/input_output_options"
+    },
+    {
+      "$ref": "#/$defs/quality_control_options"
+    },
+    {
+      "$ref": "#/$defs/functional_annotation"
+    },
+    {
+      "$ref": "#/$defs/snvs_to_vcf_options"
+    }
+  ]
+}
