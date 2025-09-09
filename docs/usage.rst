@@ -22,6 +22,7 @@ Installation Steps
 ------------------
 
 #. Install Nextflow
+
 .. code-block:: console
 
    curl -s https://get.nextflow.io | bash  
@@ -30,7 +31,7 @@ Installation Steps
 
 Verify installation: 
 
-..code-block:: console
+.. code-block:: console
 
     nextflow info
 
