@@ -13,31 +13,44 @@ For basic usage instructions after installation, see Basic Usage. For detailed c
 Prerequisites
 ~~~~~~~~~~~~~
 
-* Nextflow ≥24.04.2 nextflow.config:161
-* Java ≥11 (required by Nextflow)
+* Nextflow ≥ 24.04.2
+* Java ≥ 17
+* Bash ≥ 3.2
 * Container Engine: Docker, Singularity, Podman, or Apptainer
 * Conda/Mamba (optional alternative to containers)
 
 Installation Steps
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~ 
 
-**1. Install Nextflow**
+Install Nextflow
+^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: console
+Nextflow official installation instructions can be found in https://www.nextflow.io/docs/latest/install.html
+
+**Self-Install**
+
+.. code-block:: bash
 
    curl -s https://get.nextflow.io | bash  
    chmod +x nextflow  
    sudo mv nextflow /usr/local/bin/
 
-Verify installation: 
+**Mamba/Conda**
 
-.. code-block:: console
+.. code-block:: bash
+
+   mamba create --name nf-env bioconda::nextflow
+   source activate nf-env   
+ 
+**Verify installation** 
+
+.. code-block:: bash
 
     nextflow info
 
 **2. Choose Execution Profile**
 
-PopMAG provides multiple execution profiles for different environments:
+PopMAG supports multiple containerization and environment management systems for reproducible execution. The pipeline provides several execution profiles that configure different container engines and dependency management approaches:
 
 * Docker (recommended): -profile docker 
 * Singularity (HPC systems): -profile singularity
