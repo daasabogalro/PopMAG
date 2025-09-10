@@ -11,7 +11,7 @@ This document covers the installation requirements and dependency management for
 For basic usage instructions after installation, see Basic Usage. For detailed configuration of pipeline parameters, see Global Parameters.
 
 Prerequisites
--------------
+~~~~~~~~~~~~~
 
 * Nextflow ≥24.04.2 nextflow.config:161
 * Java ≥11 (required by Nextflow)
@@ -19,7 +19,7 @@ Prerequisites
 * Conda/Mamba (optional alternative to containers)
 
 Installation Steps
-------------------
+~~~~~~~~~~~~~~~~~~
 
 **1. Install Nextflow**
 
