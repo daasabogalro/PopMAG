@@ -31,5 +31,12 @@ templates_path = ['_templates']
 
 html_theme = 'sphinx_rtd_theme'
 
+html_context = {
+  'display_github': True,
+  'github_user': 'buskill',
+  'github_repo': 'buskill-app',
+  'github_version': 'master/docs/',
+}
+
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
