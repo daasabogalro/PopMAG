@@ -7,9 +7,10 @@ The pipeline processes MAGs alongside paired-end sequencing reads to perform qua
 The pipeline is organized into four main phases: 
 
 * MAG Quality control and preprocessing
-* Abundance calculation and Variant Calling
-* Population genomics and Functional analysis
-* Visualization and Reporting
+* Microbial community profiling
+* Abundance calculation and variant calling
+* Population genomics and functional analysis
+* Visualization and reporting
 
 PopMAG can aid to understand both the functional potential and population dynamics of metagenome-assembled genomes, particularly in the context of comparative genomics and temporal or spatial studies.
 
