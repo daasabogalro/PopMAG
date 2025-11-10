@@ -23,6 +23,8 @@ process METACERBERUS_DATABASEDOWNLOAD {
     metacerberus.py --download 
 
     cp -r /usr/local/lib/python3.9/site-packages/meta_cerberus/DB ./metacerberus_db
+    
+    tail -n +2 metacerberus_db/databases.tsv | while read -r name filename url date; do wget -O "metacerberus_db/\$filename" "\$url"; done
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
