@@ -248,7 +248,9 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     MERGE_GENOME_REPORTS_INSTRAIN(ch_genome_info.groupTuple())
     ch_merged_instrain_genome_reports = MERGE_GENOME_REPORTS_INSTRAIN.out.merged_instrain_genome_reports
 
+    if (!params.skip_instrain_compare) {
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
+    }
 
     ch_metadata = params.metadata_file ? file(params.metadata_file) : file('/no/file/provided', checkIfExists: false)
 

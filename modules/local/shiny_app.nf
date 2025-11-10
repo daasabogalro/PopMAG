@@ -17,7 +17,9 @@ process LAUNCH_SHINY_APP {
     task.ext.when == null || task.ext.when
 
     script:
+    
     def args = task.ext.args ?: ''
+    def timeout = params.shiny_timeout ?: 1500
     println "To access the shiny app please open 0.0.0.0:3838 or localhost:3838 in your browser"
     """
     mkdir -p /srv/shiny-server/app/
@@ -28,6 +30,6 @@ process LAUNCH_SHINY_APP {
         cp ${metadata} /srv/shiny-server/app/metadata.csv
     fi
     
-    timeout 1500 Rscript -e "shiny::runApp('/srv/shiny-server/app', host='0.0.0.0', port=3838)"
+    timeout ${timeout} Rscript -e "shiny::runApp('/srv/shiny-server/app', host='0.0.0.0', port=3838)"
     """
 }
