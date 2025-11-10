@@ -20,7 +20,7 @@ process LAUNCH_SHINY_APP {
     
     def args = task.ext.args ?: ''
     def timeout = params.shiny_timeout ?: 1500
-    println "To access the shiny app please open 0.0.0.0:3838 or localhost:3838 in your browser"
+    println "To access the shiny app please open 0.0.0.0:3838 or localhost:3838 in your browser. The time out is set at ${timeout}."
     """
     mkdir -p /srv/shiny-server/app/
     cp *.tsv /srv/shiny-server/app/
