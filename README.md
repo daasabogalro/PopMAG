@@ -1,3 +1,12 @@
+---
+
+**Documentation**: <a href="https://popmag.readthedocs.io/en/latest/" target="_blank">https://popmag.readthedocs.io/en/latest/</a>
+
+**Source Code**: <a href="https://github.com/daasabogalro/PopMAG/" target="_blank">https://github.com/daasabogalro/PopMAG/</a>
+
+---
+
+
 ## Introduction
 
 **PopMAG** is a bioinformatics pipeline that integrates genome-resolved metagenomics with populations genomics workflows. 
@@ -64,9 +73,9 @@ Now, you can run the pipeline using:
 ```bash
 nextflow run main.nf \	
    -profile docker \
-   --mag_paths mag_samplesheet.csv \
-   --reads_paths reads_samplesheet.csv \
-   --metadata metadata.csv \ 
+   --mag_paths mag_samplesheet.tsv \
+   --reads_paths reads_samplesheet.tsv \
+   --metadata metadata.tsv \ 
    --outdir <OUTDIR>
 ```
 
