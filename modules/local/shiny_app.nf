@@ -1,9 +1,12 @@
 process LAUNCH_SHINY_APP {
-    tag "${meta}"
+    tag "App"
     label 'process_medium'
     errorStrategy 'ignore' 
 
     container 'docker.io/daasabogalro/popmag-dashboard:latest'
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+    'docker.io/daasabogalro/popmag-dashboard:latest':
+    'daasabogalro/popmag-dashboard:latest' }"
     containerOptions '-p 3838:3838'
 
     input:
