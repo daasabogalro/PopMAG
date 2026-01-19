@@ -53,8 +53,8 @@ SAMPLE_1	/forward/reads/path	/reverse/reads/path
 The Metadata.tsv file must have at least the column sample_id. 
 
 ```csv
-sample_id	Metadata_1	..	Metadata_n	
-SAMPLE_1	0.5	..	0.9
+sample_id,Metadata_1,Metadata_n	
+SAMPLE_1,0.5,0.9
 ```
 
 Now, you can run the pipeline using:
