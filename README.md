@@ -48,9 +48,9 @@ sample_id	forward	reverse
 SAMPLE_1	/forward/reads/path	/reverse/reads/path
 ```
 
-`Metadata.tsv`:
+`Metadata.csv`:
 
-The Metadata.tsv file must have at least the column sample_id. 
+The Metadata.csv file must have at least the column sample_id. 
 
 ```csv
 sample_id,Metadata_1,Metadata_n	
