@@ -1,13 +1,18 @@
 ## Introduction
 
-**PopMAG** is a bioinformatics pipeline that integrates genome-resolved metagenomics with populations genomics workflows. 
-The pipeline takes a MAGs samplesheet, a reads files samplesheet and a metadata file as input, and is divided in three main sections:
+**PopMAG** is a pipeline that integrates genome-resolved metagenomics data with population genomics tools to analyze metagenome-assembled genomes (MAGs) and their population-level variations. The pipeline processes MAGs alongside paired-end sequencing short reads (or BAM files) to perform quality assessment, abundance profiling, variant calling, and population genomics analyses, ending in an interactive visualization dashboard built with shiny.
 
-- MAG Quality control
-- Abundance calculation and Variant Calling
-- Population genomics metrics and Visualization 
+The pipeline is organized into five main phases:
 
+*    MAG Quality control and preprocessing.
+*    Microbial community profiling.
+*    Abundance calculation and variant calling.
+*    Population genomics and functional analysis.
+*    Visualization and reporting.
 
+**PopMAG** can aid to understand both the functional potential and population dynamics of metagenome-assembled genomes, particularly in the context of comparative genomics and temporal or spatial studies.
+
+Complete documentation for the pipeline can be found in [daasabogalro.github.io/popmag_docs/](https://daasabogalro.github.io/popmag_docs/)
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
@@ -64,8 +69,8 @@ Now, you can run the pipeline using:
 ```bash
 nextflow run main.nf \	
    -profile docker \
-   --mag_paths mag_samplesheet.csv \
-   --reads_paths reads_samplesheet.csv \
+   --mag_paths mag_samplesheet.tsv \
+   --reads_paths reads_samplesheet.tsv \
    --metadata metadata.csv \ 
    --outdir <OUTDIR>
 ```
@@ -73,7 +78,7 @@ nextflow run main.nf \
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
-<!--For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/magenomics/usage) and the [parameter documentation](https://nf-co.re/magenomics/parameters).-->
+For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/magenomics/usage) and the [parameter documentation](https://daasabogalro.github.io/popmag_docs/).
 
 
 <!--## Pipeline output
