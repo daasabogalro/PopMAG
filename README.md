@@ -78,7 +78,7 @@ nextflow run main.nf \
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
-For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/magenomics/usage) and the [parameter documentation](https://daasabogalro.github.io/popmag_docs/config).
+For more details and further functionality, please refer to the [usage documentation](https://daasabogalro.github.io/popmag_docs/usage) and the [parameter documentation](https://daasabogalro.github.io/popmag_docs/config).
 
 <!--## Pipeline output
 
