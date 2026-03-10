@@ -48,7 +48,7 @@
     "quality_control_options": {
       "title": "Quality control options",
       "type": "object",
-      "description": "Define execution behavior, checkm2 database version and location, and filtering tresholds.",
+      "description": "Define execution behavior, checkm2 database version and location, and filtering thresholds.",
       "default": "",
       "properties": {
         "checkm2_db": {
@@ -79,12 +79,17 @@
     "functional_annotation": {
       "title": "Functional Annotation",
       "type": "object",
-      "description": "Define behavior and metacerberus database location",
+      "description": "Define behavior and metacerberus database location.",
       "default": "",
       "properties": {
         "metacerberus_db": {
           "type": "string",
           "description": "Location of the metacerberus database."
+        },
+        "annotation_db": {
+          "type": "string",
+          "default": "ALL",
+          "description": "Name(s) of the database(s) you want to conduct the metacerberus annotation with."
         },
         "skip_metacerberus": {
           "type": "boolean",
@@ -95,7 +100,7 @@
     "snvs_to_vcf_options": {
       "title": "SNVs to VCF options",
       "type": "object",
-      "description": "",
+      "description": "Define thresholds for VCF generation.",
       "default": "",
       "properties": {
         "min_coverage": {
@@ -121,6 +126,35 @@
           "description": "String to identify your VCFs using a suffix."
         }
       }
+    },
+    "instrain": {
+      "title": "inStrain",
+      "type": "object",
+      "description": "Define the behavior of inStrain modules.",
+      "default": "",
+      "properties": {
+        "skip_instrain_compare": {
+          "type": "boolean",
+          "description": "Do not run inStrain compare."
+        }
+      }
+    },
+    "shiny_app": {
+      "title": "Shiny App",
+      "type": "object",
+      "description": "Define the behavior of the Shiny App",
+      "default": "",
+      "properties": {
+        "skip_shiny": {
+          "type": "boolean",
+          "description": "Do not launch the shiny app automatically."
+        },
+        "shiny_timeout": {
+          "type": "integer",
+          "default": 1500,
+          "description": "Time in seconds run the shiny app."
+        }
+      }
     }
   },
   "allOf": [
@@ -135,6 +169,12 @@
     },
     {
       "$ref": "#/$defs/snvs_to_vcf_options"
+    },
+    {
+      "$ref": "#/$defs/instrain"
+    },
+    {
+      "$ref": "#/$defs/shiny_app"
     }
   ]
 }
