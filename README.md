@@ -12,7 +12,7 @@ The pipeline is organized into five main phases:
 
 **PopMAG** can aid to understand both the functional potential and population dynamics of metagenome-assembled genomes, particularly in the context of comparative genomics and temporal or spatial studies.
 
-Complete documentation for the pipeline can be found in [daasabogalro.github.io/popmag_docs/](https://daasabogalro.github.io/popmag_docs/)
+Complete documentation for the pipeline can be found in [daasabogalro.github.io/popmag_docs/](https://daasabogalro.github.io/popmag_docs/) and Shiny App source code can be found in [https://github.com/daasabogalro/popmag_shiny](https://github.com/daasabogalro/popmag_shiny).
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
