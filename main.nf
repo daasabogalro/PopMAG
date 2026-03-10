@@ -254,6 +254,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
 
     ch_metadata = params.metadata_file ? file(params.metadata_file) : file('/no/file/provided', checkIfExists: false)
 
+    if (!params.skip_shiny){
     LAUNCH_SHINY_APP(
                     ch_merged_reports.map { meta, tsv -> tsv }.collect(),
                     ch_metadata,
@@ -261,4 +262,5 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
                     ch_merged_instrain_genome_reports.map { meta, tsv -> tsv }.collect(),
                     ch_pogenom_fst.map { meta, tsv -> tsv }.collect()
                     )
+    }
 }
