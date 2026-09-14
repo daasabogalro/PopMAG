@@ -19,7 +19,7 @@ process MERGE_GENOME_REPORTS_INSTRAIN {
     def args = task.ext.args ?: ''
     """
     
-    python3 ${projectDir}/bin/combine_genome_info.py \\
+    combine_genome_info.py \\
         ${genome_reports} \\
         --output intradiv \\
         ${args}

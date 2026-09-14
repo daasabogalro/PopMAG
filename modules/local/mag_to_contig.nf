@@ -12,6 +12,6 @@ process EXTRACT_CONTIG_NAMES {
     tuple val(meta), path("*individual_contigs.txt"), emit: contigs_to_bin_individual
     script:
     """
-    ${projectDir}/bin/process_mags.py ${meta.id} ${mags}
+    process_mags.py ${meta.id} ${mags}
     """
 }
