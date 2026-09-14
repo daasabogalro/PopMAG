@@ -239,11 +239,19 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
         ch_merged_reports = MERGE_REPORTS_METACERBERUS_INSTRAIN.out.merged_reports
     }
 
-    SINGLEM_METAPACKAGE()
-    ch_singleM_metapackage = SINGLEM_METAPACKAGE.out.singleM_metapackage
+    ch_singleM_results = Channel.empty()
+    if (!params.skip_singlem) {
+        if (params.singlem_metapackage) {
+            ch_singleM_metapackage = file(params.singlem_metapackage, checkIfExists: true)
+        }
+        else {
+            SINGLEM_METAPACKAGE()
+            ch_singleM_metapackage = SINGLEM_METAPACKAGE.out.singleM_metapackage
+        }
 
-    SINGLEM(ch_dereplicated_genomes, ch_singleM_metapackage)
-    ch_singleM_results = SINGLEM.out.singleM_profile
+        SINGLEM(ch_dereplicated_genomes, ch_singleM_metapackage)
+        ch_singleM_results = SINGLEM.out.singleM_profile
+    }
 
     MERGE_GENOME_REPORTS_INSTRAIN(ch_genome_info.groupTuple())
     ch_merged_instrain_genome_reports = MERGE_GENOME_REPORTS_INSTRAIN.out.merged_instrain_genome_reports

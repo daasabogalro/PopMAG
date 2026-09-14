@@ -76,6 +76,23 @@
         }
       }
     },
+    "community_profiling": {
+      "title": "Community profiling",
+      "type": "object",
+      "description": "Define behavior and SingleM metapackage location.",
+      "default": "",
+      "properties": {
+        "singlem_metapackage": {
+          "type": "string",
+          "format": "path",
+          "description": "Location of a pre-downloaded SingleM metapackage (*.smpkg.zb). If unset, the pipeline downloads one at run time, which requires internet access from the compute node."
+        },
+        "skip_singlem": {
+          "type": "boolean",
+          "description": "Do not run SingleM."
+        }
+      }
+    },
     "functional_annotation": {
       "title": "Functional Annotation",
       "type": "object",
@@ -163,6 +180,9 @@
     },
     {
       "$ref": "#/$defs/quality_control_options"
+    },
+    {
+      "$ref": "#/$defs/community_profiling"
     },
     {
       "$ref": "#/$defs/functional_annotation"
