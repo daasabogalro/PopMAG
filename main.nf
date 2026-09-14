@@ -29,6 +29,15 @@ include { MERGE_GENOME_REPORTS_INSTRAIN } from './modules/local/combine_genomes_
 include { LAUNCH_SHINY_APP } from './modules/local/shiny_app'
 
 workflow {
+    // dRep requires the CheckM2 genome info (--genomeInfo), and every stage after it consumes
+    // dRep's output, so there is currently no path through the pipeline that skips CheckM2.
+    // Fail with an explanation rather than a "No such variable" further down.
+    if (params.skip_checkm2) {
+        error("--skip_checkm2 is not supported: dRep needs the CheckM2 report to dereplicate, " +
+              "and the mapping, inStrain and POGENOM stages all read dRep's output. " +
+              "Supply a pre-downloaded database with --checkm2_db instead of skipping the step.")
+    }
+
     // MAGs channel from input file
     mag_ch = Channel
         .fromPath(params.mag_paths)

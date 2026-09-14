@@ -61,7 +61,7 @@
         },
         "skip_checkm2": {
           "type": "boolean",
-          "description": "Do not run checkm2."
+          "description": "Not currently supported: dRep requires the CheckM2 report and every downstream stage consumes dRep's output. Use checkm2_db to avoid the run-time database download instead."
         },
         "min_completeness": {
           "type": "integer",
