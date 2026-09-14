@@ -6,8 +6,6 @@ process METACERBERUS_DATABASEDOWNLOAD {
     'https://depot.galaxyproject.org/singularity/metacerberus:1.4.0--pyhdfd78af_1' :
     'biocontainers/metacerberus:1.4.0--pyhdfd78af_1' }"
 
-    input:
-
     output:
     tuple val(meta), path("metacerberus_db"), emit: database
     path("versions.yml"), emit: versions
@@ -16,8 +14,6 @@ process METACERBERUS_DATABASEDOWNLOAD {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    additional_dbs = task.ext.additional_dbs ?: ''
     meta           = [id: 'metacerberus_db']
     """
     metacerberus.py --download 

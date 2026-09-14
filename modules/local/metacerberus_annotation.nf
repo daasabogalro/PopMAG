@@ -20,7 +20,7 @@ process METACERBERUS_ANNOTATION {
 
     script:
     def args = task.ext.args ?: ''
-    def database = params.annotation_db ?: ALL
+    def database = params.annotation_db ?: 'ALL'
 
     """
     gunzip -c ${prodigal_genes} > ${meta.id}.faa
