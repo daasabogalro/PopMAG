@@ -89,7 +89,7 @@
         "annotation_db": {
           "type": "string",
           "default": "ALL",
-          "description": "Name(s) of the database(s) you want to conduct the metacerberus annotation with."
+          "description": "Name(s) of the HMM database(s) to annotate with, or ALL. These are the per-file names MetaCerberus registers, which for the KOFam download group are KOFam_prokaryote, KOFam_eukaryote and KOFam_all -- not the group names printed by `metacerberus.py --list-db`."
         },
         "skip_metacerberus": {
           "type": "boolean",
