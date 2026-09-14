@@ -33,8 +33,7 @@
         },
         "metadata_file": {
           "type": "string",
-          "default": "metadata.csv",
-          "description": "Path to the metadata file. The sample_id column is required for this file to be accepted.",
+          "description": "Optional. Path to the metadata file. The sample_id column is required for this file to be accepted. Only used by the Shiny dashboard.",
           "format": "file-path"
         },
         "publish_dir_mode": {

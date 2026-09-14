@@ -71,7 +71,7 @@ nextflow run main.nf \
    -profile docker \
    --mag_paths mag_samplesheet.tsv \
    --reads_paths reads_samplesheet.tsv \
-   --metadata metadata.csv \
+   --metadata_file metadata.csv \
    --outdir <OUTDIR>
 ```
 

@@ -260,7 +260,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
     }
 
-    ch_metadata = params.metadata_file ? file(params.metadata_file) : file('/no/file/provided', checkIfExists: false)
+    ch_metadata = params.metadata_file ? file(params.metadata_file, checkIfExists: true) : []
 
     if (!params.skip_shiny){
     LAUNCH_SHINY_APP(
