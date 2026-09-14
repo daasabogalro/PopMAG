@@ -11,7 +11,7 @@ process SINGLEM_METAPACKAGE {
     script:
     def args = task.ext.args ?: ''
     """
-    singlem data --output-directory .
+    singlem data --output-directory . ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

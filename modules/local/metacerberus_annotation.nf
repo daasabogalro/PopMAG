@@ -30,7 +30,8 @@ process METACERBERUS_ANNOTATION {
     --illumina \\
     --meta \\
     --db-path ${DB} \\
-    --dir-out annotation/${meta.sample}/${meta.id}
+    --cpus ${task.cpus} \\
+    --dir-out annotation/${meta.sample}/${meta.id} ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

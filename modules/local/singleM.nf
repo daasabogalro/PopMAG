@@ -22,7 +22,7 @@ process SINGLEM {
         --genome-fasta-files ${genomes} \\
         -p ${meta.id}_profile.tsv \\
         --threads ${task.cpus} \\
-        --metapackage ${metapackage}
+        --metapackage ${metapackage} ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
