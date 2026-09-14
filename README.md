@@ -75,6 +75,18 @@ nextflow run main.nf \
    --outdir <OUTDIR>
 ```
 
+### AWS HealthOmics
+
+`-profile healthomics` adapts the pipeline to AWS HealthOmics private workflows. It pins
+`outdir` to `/mnt/workflow/pubdir`, leaves container and conda engines disabled, turns off
+the execution report, timeline and trace, and resolves every module's `container` ternary
+to a single static upstream URI that the service can rewrite to your own private registry
+at `CreateWorkflow` time.
+
+HealthOmics tasks have no internet access, so the three databases have to be staged in S3
+beforehand and passed in with `--checkm2_db`, `--metacerberus_db` and
+`--singlem_metapackage`.
+
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
