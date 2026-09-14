@@ -4,7 +4,7 @@ process METACERBERUS_ANNOTATION {
 
     conda "bioconda::metacerberus==1.4.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'https://depot.galaxyproject.org/singularity/metacerberus:1.4.0--pyhdfd78af_0' :
+    'https://depot.galaxyproject.org/singularity/metacerberus:1.4.0--pyhdfd78af_1' :
     'biocontainers/metacerberus:1.4.0--pyhdfd78af_1' }"
 
     input:
