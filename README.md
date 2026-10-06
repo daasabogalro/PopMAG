@@ -83,8 +83,16 @@ the execution report, timeline and trace, and resolves every module's `container
 to a single static upstream URI that the service can rewrite to your own private registry
 at `CreateWorkflow` time.
 
-HealthOmics tasks have no internet access, so the three databases have to be staged in S3
-beforehand and passed in with `--checkm2_db`, `--metacerberus_db` and
+Nothing account-specific belongs in the pipeline config. Copy the images into your own
+private ECR registry, then:
+
+- pass `--container-registry-map` to `aws omics create-workflow`, mapping each upstream URI
+  in `conf/healthomics.config` to its copy in ECR;
+- select the profile at `aws omics start-run` with
+  `--engine-settings '{"profile":"healthomics"}'`.
+
+By default HealthOmics tasks have no internet access, so the three databases have to be
+staged in S3 beforehand and passed in with `--checkm2_db`, `--metacerberus_db` and
 `--singlem_metapackage`.
 
 > [!WARNING]
