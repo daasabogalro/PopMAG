@@ -15,7 +15,7 @@ process SUBSET_VCF_BY_GENOME {
 
     script:
     """
-    python3 ${projectDir}/bin/subset_vcf_by_genome.py \
+    subset_vcf_by_genome.py \
         --vcf_file ${vcf_file} \
         --contigs2bin_file ${contigs2bin_file} \
         --out_dir genome_vcfs

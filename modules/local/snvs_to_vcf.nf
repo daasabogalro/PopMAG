@@ -26,7 +26,7 @@ process SNVS_TO_VCF {
     def vcf_suffix = task.ext.vcf_suffix ?: ''
 
     """
-    python3 ${projectDir}/bin/snvs_to_vcf_by_reference.py \\
+    snvs_to_vcf_by_reference.py \\
         --snv_files ${snv_files.join(' ')} \\
         --out_dir . \\
         --min_coverage ${min_coverage} \\

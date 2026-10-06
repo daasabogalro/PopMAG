@@ -23,7 +23,7 @@ process EXTRACT_BIN_METRICS {
     """
     mkdir -p bin_metrics
     
-    python3 ${projectDir}/bin/extract_bin_metrics.py \\
+    extract_bin_metrics.py \\
         ${contigs2bin_file} \\
         ${gene_metrics_files.join(' ')} \\
         -d . \\

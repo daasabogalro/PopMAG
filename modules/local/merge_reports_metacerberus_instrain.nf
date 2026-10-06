@@ -21,7 +21,7 @@ process MERGE_REPORTS_METACERBERUS_INSTRAIN {
     def genome_name = meta.bin ?: meta.id
     """
     
-    python3 ${projectDir}/bin/merge_reports_metacerberus_instrain.py \\
+    merge_reports_metacerberus_instrain.py \\
         --bin_metrics ${bin_metrics} \\
         --annotations ${annotation_file} \\
         --output_dir . \\

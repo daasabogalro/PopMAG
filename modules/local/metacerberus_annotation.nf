@@ -4,7 +4,7 @@ process METACERBERUS_ANNOTATION {
 
     conda "bioconda::metacerberus==1.4.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'https://depot.galaxyproject.org/singularity/metacerberus:1.4.0--pyhdfd78af_0' :
+    'https://depot.galaxyproject.org/singularity/metacerberus:1.4.0--pyhdfd78af_1' :
     'biocontainers/metacerberus:1.4.0--pyhdfd78af_1' }"
 
     input:
@@ -20,7 +20,7 @@ process METACERBERUS_ANNOTATION {
 
     script:
     def args = task.ext.args ?: ''
-    def database = params.annotation_db ?: ALL
+    def database = params.annotation_db ?: 'ALL'
 
     """
     gunzip -c ${prodigal_genes} > ${meta.id}.faa
@@ -30,7 +30,8 @@ process METACERBERUS_ANNOTATION {
     --illumina \\
     --meta \\
     --db-path ${DB} \\
-    --dir-out annotation/${meta.sample}/${meta.id}
+    --cpus ${task.cpus} \\
+    --dir-out annotation/${meta.sample}/${meta.id} ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

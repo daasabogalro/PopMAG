@@ -3,7 +3,7 @@ process SINGLEM {
     label 'process_high'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    'https://depot.galaxyproject.org/singularity/singlem:0.18.3--pyhdfd78af_0' :
+    'https://depot.galaxyproject.org/singularity/singlem:0.19.0--pyhdfd78af_0' :
     'biocontainers/singlem:0.19.0--pyhdfd78af_0' }"
 
     
@@ -22,7 +22,7 @@ process SINGLEM {
         --genome-fasta-files ${genomes} \\
         -p ${meta.id}_profile.tsv \\
         --threads ${task.cpus} \\
-        --metapackage ${metapackage}
+        --metapackage ${metapackage} ${args}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

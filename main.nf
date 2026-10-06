@@ -29,6 +29,15 @@ include { MERGE_GENOME_REPORTS_INSTRAIN } from './modules/local/combine_genomes_
 include { LAUNCH_SHINY_APP } from './modules/local/shiny_app'
 
 workflow {
+    // dRep requires the CheckM2 genome info (--genomeInfo), and every stage after it consumes
+    // dRep's output, so there is currently no path through the pipeline that skips CheckM2.
+    // Fail with an explanation rather than a "No such variable" further down.
+    if (params.skip_checkm2) {
+        error("--skip_checkm2 is not supported: dRep needs the CheckM2 report to dereplicate, " +
+              "and the mapping, inStrain and POGENOM stages all read dRep's output. " +
+              "Supply a pre-downloaded database with --checkm2_db instead of skipping the step.")
+    }
+
     // MAGs channel from input file
     mag_ch = Channel
         .fromPath(params.mag_paths)
@@ -239,11 +248,19 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
         ch_merged_reports = MERGE_REPORTS_METACERBERUS_INSTRAIN.out.merged_reports
     }
 
-    SINGLEM_METAPACKAGE()
-    ch_singleM_metapackage = SINGLEM_METAPACKAGE.out.singleM_metapackage
+    ch_singleM_results = Channel.empty()
+    if (!params.skip_singlem) {
+        if (params.singlem_metapackage) {
+            ch_singleM_metapackage = file(params.singlem_metapackage, checkIfExists: true)
+        }
+        else {
+            SINGLEM_METAPACKAGE()
+            ch_singleM_metapackage = SINGLEM_METAPACKAGE.out.singleM_metapackage
+        }
 
-    SINGLEM(ch_dereplicated_genomes, ch_singleM_metapackage)
-    ch_singleM_results = SINGLEM.out.singleM_profile
+        SINGLEM(ch_dereplicated_genomes, ch_singleM_metapackage)
+        ch_singleM_results = SINGLEM.out.singleM_profile
+    }
 
     MERGE_GENOME_REPORTS_INSTRAIN(ch_genome_info.groupTuple())
     ch_merged_instrain_genome_reports = MERGE_GENOME_REPORTS_INSTRAIN.out.merged_instrain_genome_reports
@@ -252,7 +269,7 @@ ch_bowtie2_align_input = ch_bowtie2_instrain_index.combine(reads_ch)
     INSTRAIN_COMPARE(ch_profiles.groupTuple())
     }
 
-    ch_metadata = params.metadata_file ? file(params.metadata_file) : file('/no/file/provided', checkIfExists: false)
+    ch_metadata = params.metadata_file ? file(params.metadata_file, checkIfExists: true) : []
 
     if (!params.skip_shiny){
     LAUNCH_SHINY_APP(

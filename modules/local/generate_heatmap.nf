@@ -2,7 +2,7 @@ process GENERATE_HEATMAP {
     tag "${meta.id}"
     label 'process_low'
 
-    conda "/opt/miniforge3/AI"
+    conda "conda-forge::pandas conda-forge::seaborn conda-forge::matplotlib conda-forge::numpy"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     'https://depot.galaxyproject.org/singularity/python:3.9--1' :
     'docker.io/suyanan/python:pip-numpy-h5py-pandas-matplotlib-seaborn' }"

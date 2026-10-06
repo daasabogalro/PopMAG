@@ -71,9 +71,29 @@ nextflow run main.nf \
    -profile docker \
    --mag_paths mag_samplesheet.tsv \
    --reads_paths reads_samplesheet.tsv \
-   --metadata metadata.csv \
+   --metadata_file metadata.csv \
    --outdir <OUTDIR>
 ```
+
+### AWS HealthOmics
+
+`-profile healthomics` adapts the pipeline to AWS HealthOmics private workflows. It pins
+`outdir` to `/mnt/workflow/pubdir`, leaves container and conda engines disabled, turns off
+the execution report, timeline and trace, and resolves every module's `container` ternary
+to a single static upstream URI that the service can rewrite to your own private registry
+at `CreateWorkflow` time.
+
+Nothing account-specific belongs in the pipeline config. Copy the images into your own
+private ECR registry, then:
+
+- pass `--container-registry-map` to `aws omics create-workflow`, mapping each upstream URI
+  in `conf/healthomics.config` to its copy in ECR;
+- select the profile at `aws omics start-run` with
+  `--engine-settings '{"profile":"healthomics"}'`.
+
+By default HealthOmics tasks have no internet access, so the three databases have to be
+staged in S3 beforehand and passed in with `--checkm2_db`, `--metacerberus_db` and
+`--singlem_metapackage`.
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).

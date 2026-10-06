@@ -33,8 +33,7 @@
         },
         "metadata_file": {
           "type": "string",
-          "default": "metadata.csv",
-          "description": "Path to the metadata file. The sample_id column is required for this file to be accepted.",
+          "description": "Optional. Path to the metadata file. The sample_id column is required for this file to be accepted. Only used by the Shiny dashboard.",
           "format": "file-path"
         },
         "publish_dir_mode": {
@@ -62,7 +61,7 @@
         },
         "skip_checkm2": {
           "type": "boolean",
-          "description": "Do not run checkm2."
+          "description": "Not currently supported: dRep requires the CheckM2 report and every downstream stage consumes dRep's output. Use checkm2_db to avoid the run-time database download instead."
         },
         "min_completeness": {
           "type": "integer",
@@ -73,6 +72,23 @@
           "type": "integer",
           "default": 5,
           "description": "Highest value of contamination for a genome to be accepted for further analysis."
+        }
+      }
+    },
+    "community_profiling": {
+      "title": "Community profiling",
+      "type": "object",
+      "description": "Define behavior and SingleM metapackage location.",
+      "default": "",
+      "properties": {
+        "singlem_metapackage": {
+          "type": "string",
+          "format": "path",
+          "description": "Location of a pre-downloaded SingleM metapackage (*.smpkg.zb). If unset, the pipeline downloads one at run time, which requires internet access from the compute node."
+        },
+        "skip_singlem": {
+          "type": "boolean",
+          "description": "Do not run SingleM."
         }
       }
     },
@@ -89,7 +105,7 @@
         "annotation_db": {
           "type": "string",
           "default": "ALL",
-          "description": "Name(s) of the database(s) you want to conduct the metacerberus annotation with."
+          "description": "Name(s) of the HMM database(s) to annotate with, or ALL. These are the per-file names MetaCerberus registers, which for the KOFam download group are KOFam_prokaryote, KOFam_eukaryote and KOFam_all -- not the group names printed by `metacerberus.py --list-db`."
         },
         "skip_metacerberus": {
           "type": "boolean",
@@ -163,6 +179,9 @@
     },
     {
       "$ref": "#/$defs/quality_control_options"
+    },
+    {
+      "$ref": "#/$defs/community_profiling"
     },
     {
       "$ref": "#/$defs/functional_annotation"
